@@ -284,12 +284,5 @@ folder, and symlink to that on each deployment.
 The second option is to create a folder in a permanent location and configure EchoUploads
 to use it:
 
-    # In production.rb, specify the default folder. Can be overridden per attribute.
-    config.echo_uploads.default_folder = '/some/folder'
-    
-    # In a model, specify the folder per attribute. Takes precence over the above.
-    class Widget < ActiveRecord::Base
-      include EchoUploads::Model
-      
-      echo_upload :thumbnail, folder: '/some/folder'
-    end
+    # In production.rb:
+    config.echo_uploads.folder = 'path/to/permanent/folder'
