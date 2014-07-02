@@ -1,0 +1,33 @@
+<%= form_for @image do |f| %>
+  <div>
+    <%= f.label :name, 'Name:' %>
+    <%= f.text_field :name %>
+    <%= error_on f.object, :name %>
+  </div>
+  
+  <div>
+    <% if f.object.has_prm_file? %>
+      <!-- If a permanent file has previously been saved, we display it back for the
+      user's reference. -->
+      <%= image_tag image_url(@image, key: @image.file_key) %>
+    <% end %>
+    
+    <!-- If a temporary file has been saved, then we're redisplaying the form due to a
+    validation error. (But not an error on the file itself.) We prefer not to invite the
+    user to re-upload the file. -->
+    <% unless f.object.has_tmp_file? %>
+      <%= f.label :file, 'Image file:' %>
+      <%= f.file_field :file %>
+      <%= error_on f.object, :file %>
+    <% end %>
+  </div>
+  
+  <div>
+    <%= f.hidden_field :echo_uploads_data %>
+    <!--
+      Decoded value of #echo_uploads_data:
+      <%= Base64.decode64(f.object.echo_uploads_data) %>
+    -->
+    <%= f.submit 'Save' %>
+  </div>
+<% end %>

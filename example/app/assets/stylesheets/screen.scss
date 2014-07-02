@@ -1,0 +1,25 @@
+body {background: #f5f5f5; font-family: "Lucida Grande", Helvetica, Arial, sans-serif;}
+
+a:link, a:visited, a:hover, a:active {color: #0097E3;}
+
+form > div {margin-bottom: 20px;}
+form > div:last-child {margin-bottom: 0;}
+
+label, input, select {display: block; margin: 0;}
+label {font-size: 13px; margin-bottom: 2px;}
+
+span.error-message {font-size: 12px; color: #FF004C;}
+
+div#container {width: 960px; margin: 20px auto;}
+
+ul#images {
+  list-style-type: none; margin: 0; padding: 0;
+  > li {float: left; width: 100px; list-style-type: none; margin: 0 10px 0 0; padding: 0;}
+  img {display: block; width: 100%;}
+  .name, a.edit {display: inline; font-size: 12px; margin-top: 5px;}
+  form, form > div {display: inline; margin: 0;}
+  input[type=submit] {
+    display: inline; margin: 0; padding: 0; border: none; background: none;
+    cursor: pointer; font-size: 12px; color: #0097E3; text-decoration: underline;
+  }
+}

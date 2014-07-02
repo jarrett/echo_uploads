@@ -1,0 +1,6 @@
+Where are the tests?
+====================
+
+They're in example/test. Echo Uploads is a Rails gem. It's full-stack, i.e. it involves
+models, views, and controllers. So the most intuitive and reliable way to test it is
+in the context of an actual Rails app.
