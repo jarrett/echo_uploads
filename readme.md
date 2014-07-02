@@ -273,7 +273,7 @@ Uploads will have to stop using SHA-512, and existing filestores will have to be
 The default, built-in file store uses the server's local filesystem. By default, it places
 files in:
 
-    `"#{Rails.root}/uploads/echo_uploads"`.
+    "#{Rails.root}/uploads/echo_uploads"
 
 If you're deploying with Capistrano or anything similar, be careful that you don't
 re-create the upload folder on each deployment. There are two ways to avoid that.
