@@ -260,9 +260,9 @@ Looking deeper under the hood, here's when each of the above steps happens:
 As of June 2014, no.
 
 Hypothetically, if someone discovers a way to compute a matching input from a SHA-512
-hash, an attack would be possible. Knowing contents of an uploaded file, or the SHA-512
-hash thereof, an attacker could craft a harmful file with the same SHA-512 hash. If the
-attacker uploaded that file, it would overwrite the original.
+hash, an attack would be possible. Knowing the contents of an uploaded file, or the
+SHA-512 hash thereof, an attacker could craft a harmful file with the same SHA-512 hash.
+If the attacker uploaded that file, it would overwrite the original.
 
 Currently (as of June 2014), there is no publicly known way to compute a matching input
 from a SHA-512 hash. So the attack is not currently possible. If that changes, Echo
@@ -271,7 +271,9 @@ Uploads will have to stop using SHA-512, and existing filestores will have to be
 ## Filesystem Store
 
 The default, built-in file store uses the server's local filesystem. By default, it places
-files in `"#{Rails.root}/uploads/echo_uploads"`.
+files in:
+
+    `"#{Rails.root}/uploads/echo_uploads"`.
 
 If you're deploying with Capistrano or anything similar, be careful that you don't
 re-create the upload folder on each deployment. There are two ways to avoid that.
