@@ -44,25 +44,27 @@ module EchoUploads
       def configure_temp_file_saving(attr, options)
         # Wrap the #save method. This also suffices for #create.
         define_method("save_with_#{attr}_temp_file") do |*args|
-          maybe_save_temp_file(attr, options) do 
+          maybe_save_temp_file(attr, options) do
             send "save_without_#{attr}_temp_file", *args
           end
         end
         alias_method_chain :save, "#{attr}_temp_file".to_sym
         
         # Wrap the #update and #update_attributes methods.
-        define_method("update_with_#{attr}_temp_file") do |*args|
-          @called_maybe_save_temp_file ||= {}
-          @called_maybe_save_temp_file[attr.to_sym] = true
+        define_method("update_with_#{attr}_temp_file") do |*args|          
           begin
-            maybe_save_temp_file(attr, options) do
+            success = maybe_save_temp_file(attr, options) do
               send "update_without_#{attr}_temp_file", *args
             end
+            @called_maybe_save_temp_file ||= {}
+            @called_maybe_save_temp_file[attr.to_sym] = true
+            success
           ensure
             @called_maybe_save_temp_file[attr.to_sym] = nil
           end
         end
         alias_method_chain :update, "#{attr}_temp_file".to_sym
+        alias_method :update_attributes, "update_with_#{attr}_temp_file".to_sym
       end
     end
   end
