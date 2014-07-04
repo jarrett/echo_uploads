@@ -1,5 +1,7 @@
 require 'echo_uploads/config'
 require 'echo_uploads/validation'
+require 'echo_uploads/perm_file_saving'
+require 'echo_uploads/temp_file_saving'
 require 'echo_uploads/model'
 require 'echo_uploads/file'
 require 'echo_uploads/abstract_store'
