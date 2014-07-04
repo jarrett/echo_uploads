@@ -13,12 +13,13 @@ module EchoUploads
     # Instead, we have to do some trickery with .alias_method_chain.
     def maybe_save_temp_file(attr, options)
       success = yield
-        
-      @called_maybe_save_temp_file ||= {}
+      
       # Because of the tangled way ActiveRecord's persistence methods delegate to each
       # other, maybe_save_temp_file sometimes gets called twice. That's unavoidable. To
-      # workaround that issue, we check whether the method has already been called.
-      unless @called_maybe_save_temp_file[attr.to_sym]
+      # workaround that issue, we check whether we're calling #save from within #update.
+      @echo_uploads_saving ||= {}
+      @echo_uploads_updating ||= {}
+      unless @echo_uploads_saving[attr] and @echo_uploads_updating[attr]
         if (file = send(attr)).present? and !success and errors[attr].empty?
           # A file has been uploaded. Validation failed, but the file itself was valid.
           # Thus, we must persist a temporary file.
@@ -44,23 +45,30 @@ module EchoUploads
       def configure_temp_file_saving(attr, options)
         # Wrap the #save method. This also suffices for #create.
         define_method("save_with_#{attr}_temp_file") do |*args|
-          maybe_save_temp_file(attr, options) do
-            send "save_without_#{attr}_temp_file", *args
+          @echo_uploads_saving ||= {}
+          @echo_uploads_saving[attr] = true
+          begin
+            success = maybe_save_temp_file(attr, options) do
+              send "save_without_#{attr}_temp_file", *args
+            end
+            success
+          ensure
+            @echo_uploads_saving.delete attr
           end
         end
         alias_method_chain :save, "#{attr}_temp_file".to_sym
         
         # Wrap the #update and #update_attributes methods.
-        define_method("update_with_#{attr}_temp_file") do |*args|          
+        define_method("update_with_#{attr}_temp_file") do |*args|
+          @echo_uploads_updating ||= {}
+          @echo_uploads_updating[attr] = true
           begin
             success = maybe_save_temp_file(attr, options) do
               send "update_without_#{attr}_temp_file", *args
             end
-            @called_maybe_save_temp_file ||= {}
-            @called_maybe_save_temp_file[attr.to_sym] = true
             success
           ensure
-            @called_maybe_save_temp_file[attr.to_sym] = nil
+            @echo_uploads_updating.delete attr
           end
         end
         alias_method_chain :update, "#{attr}_temp_file".to_sym
