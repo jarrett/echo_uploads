@@ -1,15 +1,15 @@
 require 'test_helper'
 
 class ImagesTest < ActionDispatch::IntegrationTest
-  def assert_successful_upload
+  def assert_successful_upload(image_num = 1)
     assert_equal '/', current_path
     assert_selector 'ul#images > li'
     img_src = URI.parse(page.find('ul#images > li > img')['src']).path
     visit img_src
     headers = page.response_headers
-    assert_equal 'inline; filename="test_image_1.png"', headers['Content-Disposition']
+    assert_equal %Q(inline; filename="test_image_#{image_num}.png"), headers['Content-Disposition']
     assert_equal 'image/png', headers['Content-Type']
-    assert_equal '1421', headers['Content-Length']
+    assert_equal({1 => '1421', 2 => '1290'}[image_num], headers['Content-Length'])
   end
   
   test 'successful upload in one attempt' do
@@ -63,11 +63,33 @@ class ImagesTest < ActionDispatch::IntegrationTest
   end
   
   test 'successfully upload new version of file' do
-    skip
+    visit '/images/new'
+    fill_in 'image_name', with: 'Flower'
+    attach_file 'image_file', example_file_path(1)
+    click_button 'Save'
+    assert_successful_upload 1
+    visit '/'
+    click_link 'Edit'
+    attach_file 'image_file', example_file_path(2)
+    click_button 'Save'
+    assert_successful_upload 2
   end
   
   test 'try to upload new version with name blank, resubmit successfully' do
-    skip
+    visit '/images/new'
+    fill_in 'image_name', with: 'Flower'
+    attach_file 'image_file', example_file_path(1)
+    click_button 'Save'
+    assert_successful_upload 1
+    visit '/'
+    click_link 'Edit'
+    fill_in 'image_name', with: ''
+    attach_file 'image_file', example_file_path(2)
+    Rails.logger.info "About to submit invalid"
+    click_button 'Save'
+    fill_in 'image_name', with: 'Flower'
+    click_button 'Save'
+    assert_successful_upload 2
   end
   
   test 'try to upload oversized new version, resubmit successfully' do
