@@ -25,6 +25,5 @@ module Example
     # Don't do this in a real app. This is just a convenience for developing the Echo
     # Uploads gem. Instead, put `gem 'echo_uploads'` in your Gemfile.
     config.autoload_paths += [File.join(Rails.root, '../lib')]
-    require File.join(Rails.root, '../lib/echo_uploads/config')
   end
 end

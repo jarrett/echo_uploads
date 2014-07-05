@@ -1,4 +1,6 @@
-require 'echo_uploads/config'
+module EchoUploads; end
+
+require 'echo_uploads/railtie'
 require 'echo_uploads/validation'
 require 'echo_uploads/perm_file_saving'
 require 'echo_uploads/temp_file_saving'
