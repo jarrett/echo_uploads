@@ -84,6 +84,7 @@ module EchoUploads
         define_method("#{attr}_mime") do
           map_metadata(attr, &:mime_type)
         end
+        alias_method "#{attr}_mime_type", "#{attr}_mime"
         
         # Define the original filename method.
         define_method("#{attr}_original_filename") do
