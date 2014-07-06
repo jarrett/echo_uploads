@@ -16,7 +16,6 @@ group :test do
   gem 'minitest-rails'
   gem 'capybara'
   gem 'database_cleaner'
-  gem 'machinist'
   gem 'launchy'
   gem 'timecop'
 end

@@ -1,4 +1,4 @@
-<%= form_for @image do |f| %>
+<%= form_for @widget do |f| %>
   <div>
     <%= f.label :name, 'Name:' %>
     <%= f.text_field :name %>
@@ -6,19 +6,19 @@
   </div>
   
   <div>
-    <% if f.object.has_prm_file? %>
+    <% if f.object.has_prm_thumbnail? %>
       <!-- If a permanent file has previously been saved, we display it back for the
       user's reference. -->
-      <%= image_tag image_url(@image, key: @image.file_key) %>
+      <%= widget_thumbnail f.object %>
     <% end %>
     
     <!-- If a temporary file has been saved, then we're redisplaying the form due to a
     validation error. (But not an error on the file itself.) We prefer not to invite the
     user to re-upload the file. -->
-    <% unless f.object.has_tmp_file? %>
-      <%= f.label :file, 'Image file:' %>
-      <%= f.file_field :file %>
-      <%= error_on f.object, :file %>
+    <% unless f.object.has_tmp_thumbnail? %>
+      <%= f.label :file, 'Thumbnail file:' %>
+      <%= f.file_field :thumbnail %>
+      <%= error_on f.object, :thumbnail %>
     <% end %>
   </div>
   

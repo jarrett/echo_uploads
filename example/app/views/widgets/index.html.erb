@@ -1,0 +1,12 @@
+<p><%= link_to 'New widget', new_widget_url %></p>
+
+<ul id="widgets">
+  <% @widgets.each do |widget| %>
+    <li>
+      <%= widget_thumbnail widget %>
+      <div class="name"><%= widget.name %></div>
+      <%= link_to 'Edit', edit_widget_url(widget), class: 'edit' %>
+      <%= button_to 'Delete', widget_url(widget), method: :delete %>
+    </li>
+  <% end %> 
+</ul>

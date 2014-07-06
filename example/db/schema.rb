@@ -31,7 +31,7 @@ ActiveRecord::Schema.define(version: 20140625214309) do
   add_index "echo_uploads_files", ["owner_id"], name: "index_echo_uploads_files_on_owner_id"
   add_index "echo_uploads_files", ["temporary"], name: "index_echo_uploads_files_on_temporary"
 
-  create_table "images", force: true do |t|
+  create_table "widgets", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"

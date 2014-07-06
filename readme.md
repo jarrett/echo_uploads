@@ -29,7 +29,7 @@ Off-the-shelf, it comes with a local filesystem store (`EchoUploads::FilesystemS
 but you can define you own:
 
     class Widget < ActiveRecord::Base
-      include EchoUploads
+      include EchoUploads::Model
       
       echo_upload :thumbnail, storage: MyFileStore
     end
@@ -279,7 +279,16 @@ If you're deploying with Capistrano or anything similar, be careful that you don
 re-create the upload folder on each deployment. There are two ways to avoid that.
 
 The first option is to create a folder in a permanent location, e.g. Capistrano's `shared`
-folder, and symlink to that on each deployment.
+folder, and symlink to that on each deployment. For example, in `deploy.rb`:
+    
+    namespace :deploy do
+      task :symlink_echo_uploads do    
+        run "rm -rf #{deploy_to}/current/echo_uploads/production"
+        run "ln -s #{deploy_to}/shared/echo_uploads #{deploy_to}/echo_uploads/production"
+      end
+    end
+    
+    after 'deploy:create_symlink', 'deploy:symlink_echo_uploads'
 
 The second option is to create a folder in a permanent location and configure EchoUploads
 to use it:

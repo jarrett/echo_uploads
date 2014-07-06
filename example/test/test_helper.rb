@@ -5,7 +5,6 @@ require 'minitest/rails'
 require 'capybara/rails'
 require 'turn/autorun'
 require 'fileutils'
-require 'blueprints'
 
 class ActiveSupport::TestCase
   ActiveRecord::Migration.check_pending!
@@ -19,34 +18,34 @@ class ActiveSupport::TestCase
     Capybara.use_default_driver
   end
   
-  def example_file(num = 1)
-    Rack::Test::UploadedFile.new example_file_path(num), 'image/png'
+  def example_image(num = 1)
+    Rack::Test::UploadedFile.new example_image_path(num), 'image/png'
   end
   
-  def example_file_digest(num = 1)
-    Digest::SHA512.hexdigest File.read(example_file_path(num))
+  def example_image_digest(num = 1)
+    Digest::SHA512.hexdigest File.read(example_image_path(num))
   end
   
-  def example_file_path(num = 1)
+  def example_image_path(num = 1)
     File.join Rails.root, "test/files/test_image_#{num}.png"
   end
   
-  def with_big_file
-    with_big_file_path do |big_file_path|
-      yield Rack::Test::UploadedFile.new big_file_path, 'image/png'
+  def with_big_image
+    with_big_image_path do |big_image_path|
+      yield Rack::Test::UploadedFile.new big_image_path, 'image/png'
     end
   end
   
-  def with_big_file_path
-    big_file_path = File.join(Rails.root, 'test/files/big_test_image.png')
+  def with_big_image_path
+    big_image_path = File.join(Rails.root, 'test/files/big_test_image.png')
     begin
-      File.open(big_file_path, 'wb') do |f|
-        data = File.read example_file_path
+      File.open(big_image_path, 'wb') do |f|
+        data = File.read example_image_path
         2.times { f << data }
       end
-      yield big_file_path
+      yield big_image_path
     ensure
-      ::File.delete big_file_path if ::File.exists?(big_file_path)
+      ::File.delete big_image_path if ::File.exists?(big_image_path)
     end
   end
 end

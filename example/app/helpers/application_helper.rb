@@ -8,4 +8,8 @@ module ApplicationHelper
       nil
     end
   end
+  
+  def widget_thumbnail(widget)
+    image_tag widget_thumbnail_url(widget, key: widget.thumbnail_key), alt: 'Thumbnail'
+  end
 end
