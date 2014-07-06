@@ -37,19 +37,19 @@ class WidgetTest < ActiveSupport::TestCase
   
   test 'temp file persisted if record (but not the file itself) is invalid' do
     assert_equal 0, ::EchoUploads::File.count
-    img = Widget.create thumbnail: example_image
+    wid = Widget.create thumbnail: example_image
     assert_equal 1, ::EchoUploads::File.count
     meta = ::EchoUploads::File.first
     assert_meta meta, temporary: true
-    assert_remember_meta img, :thumbnail, meta
+    assert_remember_meta wid, :thumbnail, meta
   end
   
   test 'temp file not persisted if file is invalid' do
     with_big_image do |big_image|
       assert_equal 0, ::EchoUploads::File.count
-      img = Widget.create name: 'Flower', thumbnail: big_image
+      wid = Widget.create name: 'Flower', thumbnail: big_image
       assert_equal 0, ::EchoUploads::File.count
-      assert_not_remember_meta img
+      assert_not_remember_meta wid
     end
   end
   
@@ -85,49 +85,59 @@ class WidgetTest < ActiveSupport::TestCase
   end
   
   test 'cannot claim permanent metadata by passing in malicious echo_uploads_data' do
-    img1 = Widget.create! name: 'Flower', thumbnail: example_image
+    wid1 = Widget.create! name: 'Flower', thumbnail: example_image
     assert_equal 1, ::EchoUploads::File.count
     meta = ::EchoUploads::File.first
     assert !meta.temporary
-    assert_equal img1, meta.owner
+    assert_equal wid1, meta.owner
     
     malicious_data = Base64.encode64(JSON.dump({
       'thumbnail' => {'id' => meta.id}
     }))
     assert_raises(ActiveRecord::RecordNotFound) do
-      img2 = Widget.create name: 'Eagle', echo_uploads_data: malicious_data
+      wid2 = Widget.create name: 'Eagle', echo_uploads_data: malicious_data
     end
   end
   
   test 'replaces file when new version is uploaded' do
-    img = Widget.create! name: 'Flower', thumbnail: example_image(1)
-    assert_meta img.thumbnail_metadata, widget_num: 1
-    old_path = img.thumbnail_path
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1)
+    assert_meta wid.thumbnail_metadata, widget_num: 1
+    old_path = wid.thumbnail_path
     assert ::File.exists?(old_path), "Expected #{old_path} to exist"
     
-    img.update_attributes! thumbnail: example_image(2)
-    assert_meta img.thumbnail_metadata, widget_num: 2
+    wid.update_attributes! thumbnail: example_image(2)
+    assert_meta wid.thumbnail_metadata, widget_num: 2
     assert !::File.exists?(old_path), "Expected #{old_path} not to exist"
   end
   
   test 'does not delete file if another record references it' do
-    img1 = Widget.create! name: 'Flower', thumbnail: example_image(1)
-    assert_meta img1.thumbnail_metadata, widget_num: 1
-    old_path = img1.thumbnail_path
+    wid1 = Widget.create! name: 'Flower', thumbnail: example_image(1)
+    assert_meta wid1.thumbnail_metadata, widget_num: 1
+    old_path = wid1.thumbnail_path
     
-    img2 = Widget.create! name: 'Eagle', thumbnail: example_image(1)
+    wid2 = Widget.create! name: 'Eagle', thumbnail: example_image(1)
     
     assert ::File.exists?(old_path), "Expected #{old_path} to exist"
-    img1.update_attributes! thumbnail: example_image(2)
-    assert_meta img1.thumbnail_metadata, widget_num: 2
+    wid1.update_attributes! thumbnail: example_image(2)
+    assert_meta wid1.thumbnail_metadata, widget_num: 2
     assert ::File.exists?(old_path), "Expected #{old_path} to exist"
   end
   
   test 'deletes file when deleted' do
-    img = Widget.create! name: 'Flower', thumbnail: example_image
+    wid = Widget.create! name: 'Flower', thumbnail: example_image
     assert_equal 1, EchoUploads::File.count
-    assert ::File.exists?(img.thumbnail_path), "Expected #{img.thumbnail_path} to exist"
-    img.destroy
-    assert !::File.exists?(img.thumbnail_path), "Expected #{img.thumbnail_path} not to exist"
+    assert ::File.exists?(wid.thumbnail_path), "Expected #{wid.thumbnail_path} to exist"
+    wid.destroy
+    assert !::File.exists?(wid.thumbnail_path), "Expected #{wid.thumbnail_path} not to exist"
+  end
+  
+  test 'does not confuse metadata records for different attributes' do
+    wid1 = Widget.create! name: 'Flower', thumbnail: example_image
+    assert_kind_of EchoUploads::File, wid1.thumbnail_metadata
+    assert_nil wid1.manual_metadata
+    
+    wid2 = Widget.create! name: 'Flower', thumbnail: example_image, manual: example_textfile
+    assert_equal 'test_image_1.png', wid2.thumbnail_original_filename
+    assert_equal 'test_textfile_1.txt', wid2.manual_original_filename
   end
 end

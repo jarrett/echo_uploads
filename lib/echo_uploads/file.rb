@@ -36,12 +36,11 @@ module EchoUploads
       original_basename + original_extension
     end
     
-    # Pass in an ian ActionDispatch::UploadedFile and an options hash.
-    def persist!(file, options)
-      # Compute the key.
-      self.key = options[:key].call file
-    
+    # Pass in an attribute name, an ActionDispatch::UploadedFile, and an options hash.
+    def persist!(attr, file, options)
       # Configure and save the metadata object.
+      self.key = options[:key].call file
+      self.owner_attr = attr
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
       compute_mime!

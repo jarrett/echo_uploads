@@ -16,6 +16,7 @@ ActiveRecord::Schema.define(version: 20140625214309) do
   create_table "echo_uploads_files", force: true do |t|
     t.integer  "owner_id"
     t.string   "owner_type"
+    t.string   "owner_attr"
     t.string   "storage_type"
     t.string   "key"
     t.string   "original_basename"

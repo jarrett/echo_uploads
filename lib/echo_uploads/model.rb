@@ -120,7 +120,10 @@ module EchoUploads
         end
         
         # Define the association with the metadata model.
-        has_one "#{attr}_metadata".to_sym, as: :owner, dependent: :destroy, class_name: '::EchoUploads::File'
+        has_one("#{attr}_metadata".to_sym,
+          ->() { where(owner_attr: attr) },
+          as: :owner, dependent: :destroy, class_name: '::EchoUploads::File'
+        )
         
         # Define the temp attribute for the metadata model.
         attr_accessor "#{attr}_tmp_metadata"
