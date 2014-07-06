@@ -62,9 +62,12 @@ module EchoUploads
           key: ::EchoUploads::File.default_key_proc
         }.merge(options)
         
-        # Init the config object.
+        # Init the config object. We can't use [] syntax to set the hash key because
+        # class_attribute expects you to call the setter method every time the
+        # attribute value changes. (Merely calling [] would just mutate the referenced
+        # object, and wouldn't invoke the setter.)
         self.echo_uploads_config ||= {}
-        self.echo_uploads_config[attr.to_sym] = {}
+        self.echo_uploads_config = echo_uploads_config.merge attr => {}
         
         # Define reader and writer methods for the file attribute.
         attr_accessor attr
