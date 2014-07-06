@@ -131,4 +131,11 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     click_button 'Save'
     assert_successful_upload 2
   end
+  
+  test 'validation error, temp file expires, resubmit' do
+    # TODO: Submit with an attached file and no name. Delete the temp EchoUploads::File
+    # to simulate expiration. Resubmit form with valid data. Ensure the failure to find
+    # the temp file is handled gracefully.
+    skip
+  end
 end
