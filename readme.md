@@ -285,7 +285,7 @@ folder, and symlink to that on each deployment. For example, in `deploy.rb`:
     namespace :deploy do
       task :symlink_echo_uploads do    
         run "rm -rf #{deploy_to}/current/echo_uploads/production"
-        run "ln -s #{deploy_to}/shared/echo_uploads #{deploy_to}/echo_uploads/production"
+        run "ln -s #{deploy_to}/shared/echo_uploads #{deploy_to}/current/echo_uploads/production"
       end
     end
     
