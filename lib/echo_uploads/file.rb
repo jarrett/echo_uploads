@@ -1,3 +1,6 @@
+require 'digest/sha2'
+require 'mime/types'
+
 module EchoUploads
   class File < ActiveRecord::Base
     self.table_name = 'echo_uploads_files'

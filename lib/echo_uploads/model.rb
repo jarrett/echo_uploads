@@ -1,7 +1,5 @@
 require 'base64'
 require 'json'
-require 'digest/sha2'
-require 'mime/types'
 require 'fileutils'
 
 module EchoUploads    
