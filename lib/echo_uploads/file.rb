@@ -70,7 +70,15 @@ module EchoUploads
     end
     
     def storage
-      Object.const_get(storage_type).new
+      class_from_string(storage_type).new
+    end
+    
+    private
+    
+    def class_from_string(name)
+      name.split('::').inject(Object) do |mod, klass|
+        mod.const_get klass
+      end
     end
   end
 end

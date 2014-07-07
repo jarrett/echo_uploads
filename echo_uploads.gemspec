@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name         = 'echo_uploads'
-  s.version      = '0.0.0'
-  s.date         = '2014-06-09'
+  s.version      = '0.0.1'
+  s.date         = '2014-07-07'
   s.summary      = 'Uploaded files for Rails'
   s.description  = ''
   s.authors      = ['Jarrett Colby']
