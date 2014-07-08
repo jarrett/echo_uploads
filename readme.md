@@ -1,4 +1,15 @@
-# Usage
+Echo Uploads is uploaded files for Rails, done right. It gracefully handles invalid form
+submissions, so users don't have to resubmit the file. It supports transforming the file
+before saving, e.g. scaling an image. It's compatible with any storage mechanism,
+including the local filesystem and the cloud. 
+
+# Getting Started
+
+## Installation
+
+In your application's Gemfile:
+
+    gem 'echo_uploads'
 
 ## Metadata Model
 
