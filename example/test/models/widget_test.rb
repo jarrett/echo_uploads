@@ -94,9 +94,12 @@ class WidgetTest < ActiveSupport::TestCase
     malicious_data = Base64.encode64(JSON.dump({
       'thumbnail' => {'id' => meta.id}
     }))
-    assert_raises(ActiveRecord::RecordNotFound) do
-      wid2 = Widget.create name: 'Eagle', echo_uploads_data: malicious_data
-    end
+    wid2 = Widget.create name: 'Eagle', echo_uploads_data: malicious_data
+    assert !wid2.persisted?
+    assert wid2.errors[:thumbnail] == ['must be uploaded']
+    assert !wid2.has_tmp_thumbnail?
+    assert !wid2.has_prm_thumbnail?
+    assert !wid2.has_thumbnail?
   end
   
   test 'replaces file when new version is uploaded' do
