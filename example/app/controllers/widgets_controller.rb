@@ -36,6 +36,12 @@ class WidgetsController < ApplicationController
     send_file widget.manual_path, type: widget.manual_mime, disposition: 'inline', filename: widget.manual_original_filename
   end
   
+  def photo
+    # See comment in #manual action.
+    widget = Widget.find params[:id]
+    send_file widget.photo_path, type: widget.photo_mime, disposition: 'inline', filename: widget.photo_original_filename
+  end
+  
   def thumbnail
     # See comment in #manual action.
     widget = Widget.find params[:id]
@@ -54,6 +60,6 @@ class WidgetsController < ApplicationController
   private
   
   def widget_params
-    params.require(:widget).permit(:manual, :thumbnail, :name, :echo_uploads_data)
+    params.require(:widget).permit(:manual, :thumbnail, :photo, :name, :echo_uploads_data)
   end
 end

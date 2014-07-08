@@ -23,6 +23,18 @@
   </div>
   
   <div>
+    <% if f.object.has_prm_photo? %>  
+      <%= widget_photo f.object %>
+    <% end %>
+    
+    <% unless f.object.has_tmp_photo? %>
+      <%= f.label :file, 'Photo file:' %>
+      <%= f.file_field :photo %>
+      <%= error_on f.object, :photo %>
+    <% end %>
+  </div>
+  
+  <div>
     <%= f.hidden_field :echo_uploads_data %>
     <!--
       Decoded value of #echo_uploads_data:

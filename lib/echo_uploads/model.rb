@@ -1,7 +1,7 @@
 require 'base64'
 require 'json'
 require 'fileutils'
-require 'tempfile'
+require 'securerandom'
 
 module EchoUploads    
   module Model
@@ -55,9 +55,11 @@ module EchoUploads
       #   +1.day+.
       # - +storage+: A class that persists uploaded files to disk, to the cloud, or to
       #   wherever else you want. Defaults to +EchoUploads::FilesystemStore+.
-      # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and an IO-like
-      #   object. It should transform the file data (e.g. scaling an image). It should
-      #   then write the transformed data to the IO.
+      # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and a path to
+      #   a temporary file. It should transform the file data (e.g. scaling an image). It
+      #   should then write the transformed data to the temporary file path. Can also
+      #   accept a symbol naming an an instance method that works the same way as the
+      #   previously described Proc.
       def echo_upload(attr, options = {})
         options = {
           expires: 1.day,
@@ -78,17 +80,20 @@ module EchoUploads
         # Define the writer method for the file attribute.
         define_method("#{attr}=") do |file|
           if options[:map]
-            mapped_file = Tempfile.new 'echo_uploads_map', File.join(Rails.root, 'tmp')
-            mapped_file.binmode
-            options[:map].call file, mapped_file
-            mapped_file.rewind
+            mapped_file_path = ::File.join Rails.root, 'tmp', SecureRandom.hex(15)
+            if options[:map].is_a? Proc
+              options[:map].call file, mapped_file_path
+            else
+              send(options[:map], file, mapped_file_path)
+            end
+            mapped_file = ::File.open mapped_file_path, 'rb'
             send "mapped_#{attr}=", mapped_file
           end
           instance_variable_set "@#{attr}", file
         end
         
         # Define the accessor methods for the mapped version of the file.
-        attr_reader "mapped_#{attr}"
+        attr_accessor "mapped_#{attr}"
         
         # Define the path method. This method will raise if the given storage
         # class doesn't support the #path method.

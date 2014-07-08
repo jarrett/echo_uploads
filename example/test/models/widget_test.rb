@@ -143,4 +143,12 @@ class WidgetTest < ActiveSupport::TestCase
     assert_equal 'test_image_1.png', wid2.thumbnail_original_filename
     assert_equal 'test_textfile_1.txt', wid2.manual_original_filename
   end
+  
+  test 'resizes photos' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1), photo: example_image(2)
+    ImageScience.with_image wid.photo_path do |img|
+      assert_equal 200, img.width
+      assert_equal 200, img.height
+    end
+  end
 end

@@ -41,8 +41,11 @@ module EchoUploads
     
     # Pass in an attribute name, an ActionDispatch::UploadedFile, and an options hash.
     def persist!(attr, file, mapped_file, options)
+      # If .echo_uploads was called with the :map option, we need to use the mapped file.
+      file_to_write = mapped_file || file
+      
       # Configure and save the metadata object.
-      self.key = options[:key].call file
+      self.key = options[:key].call file_to_write
       self.owner_attr = attr
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
@@ -51,15 +54,15 @@ module EchoUploads
       save!
     
       # Write the file to the filestore.
-      if mapped_file
-        file_to_write = nil
-      else
-        file_to_write = file
-      end
+      
       if file_to_write.is_a?(ActionDispatch::Http::UploadedFile)
-        storage.write key, file.tempfile
+        storage.write key, file_to_write.tempfile
       else
-        storage.write key, file
+        storage.write key, file_to_write
+      end
+      if file_to_write == mapped_file
+        mapped_file.close
+        #::File.delete mapped_file.path
       end
     
       # Prune any expired temporary files. (Unless automatic pruning was turned off in
