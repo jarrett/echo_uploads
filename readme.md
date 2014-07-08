@@ -23,48 +23,6 @@ follows:
     add_index :echo_uploads_files, :key
     add_index :echo_uploads_files, :temporary
 
-## Choosing a File Store
-
-Echo Uploads allows you to store your files in any location and in any manner you want.
-Off-the-shelf, it comes with a local filesystem store (`EchoUploads::FilesystemStore`),
-but you can define you own:
-
-    class Widget < ActiveRecord::Base
-      include EchoUploads::Model
-      
-      echo_upload :thumbnail, storage: MyFileStore
-    end
-    
-    class MyFileStore < EchoUploads::AbstractStore
-      # Persists the file under the given key. Accepts a File. Typically should check to
-      # see if a file with the same key already exists, and if so, do nothing.
-      def write(key, file)
-        # ...
-      end
-      
-      # Returns the stored data as a String.
-      def read(key)
-        # ...
-      end
-      
-      # Deletes the file with the given key.
-      def delete(key)
-        # ...
-      end
-      
-      # Optional. Opens the given key and yields an IO object. Not applicable to all
-      # storage mechanisms.
-      def open(key)
-        # ...
-      end
-      
-      # Optional. Returns a filesystem path to the stored file. Useful for X-Sendfile and
-      # similar. Not applicable to all storage mechanisms.
-      def path(key)
-        # ...
-      end
-    end
-
 ## Your Model
 
 With that infrastructure in place, you can start adding uploaded file attributes to your
@@ -219,6 +177,48 @@ the path to a temporary output file.
             FileUtils.mv(out_file_path + '.png', out_file_path)
           end
         end
+      end
+    end
+
+## Custom File Stores
+
+Echo Uploads allows you to store your files in any location and in any manner you want.
+Off-the-shelf, it comes with a local filesystem store (`EchoUploads::FilesystemStore`),
+which is the default. You can also define you own:
+
+    class Widget < ActiveRecord::Base
+      include EchoUploads::Model
+      
+      echo_upload :thumbnail, storage: MyFileStore
+    end
+    
+    class MyFileStore < EchoUploads::AbstractStore
+      # Persists the file under the given key. Accepts a File. Typically should check to
+      # see if a file with the same key already exists, and if so, do nothing.
+      def write(key, file)
+        # ...
+      end
+      
+      # Returns the stored data as a String.
+      def read(key)
+        # ...
+      end
+      
+      # Deletes the file with the given key.
+      def delete(key)
+        # ...
+      end
+      
+      # Optional. Opens the given key and yields an IO object. Not applicable to all
+      # storage mechanisms.
+      def open(key)
+        # ...
+      end
+      
+      # Optional. Returns a filesystem path to the stored file. Useful for X-Sendfile and
+      # similar. Not applicable to all storage mechanisms.
+      def path(key)
+        # ...
       end
     end
 
