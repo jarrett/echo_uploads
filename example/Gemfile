@@ -5,6 +5,7 @@ gem 'sqlite3'
 gem 'sass-rails', '~> 4.0.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'mime-types', '>= 1.25.1'
+gem 'image_science', '>= 1.2.6'
 
 # Normally, you'd include the following line in your Gemfile. But for the purposes of
 # developing this gem, we prefer to autoload the source files. See config/application.rb
