@@ -32,8 +32,9 @@ module EchoUploads
       parsed.each do |attr, attr_data|
         # Must verify that the metadata record is temporary. If not, an attacker could
         # pass the ID of a permanent record and change its owner.
-        meta = ::EchoUploads::File.where(key: attr_data['key'], temporary: true).find(attr_data['id'])
-        send("#{attr}_tmp_metadata=", meta)
+        if meta = ::EchoUploads::File.where(id: attr_data['id'], key: attr_data['key'], temporary: true).first
+          send("#{attr}_tmp_metadata=", meta)
+        end
       end
     end
     

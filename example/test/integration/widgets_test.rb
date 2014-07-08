@@ -136,6 +136,28 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     # TODO: Submit with an attached file and no name. Delete the temp EchoUploads::File
     # to simulate expiration. Resubmit form with valid data. Ensure the failure to find
     # the temp file is handled gracefully.
-    skip
+    
+    # Invalid upload.
+    assert_equal 0, EchoUploads::File.count
+    visit '/'
+    click_link 'New widget'
+    assert_selector 'input#widget_thumbnail'
+    attach_file 'widget_thumbnail', example_image_path
+    click_button 'Save'
+    assert has_text?("can't be blank")
+    
+    # Delete the temporary EchoUploads::File to simulate expiration.
+    assert_equal 1, EchoUploads::File.count
+    EchoUploads::File.first.destroy
+    
+    # Resubmit with name. Should redisplay with error on thumbnail.
+    fill_in 'widget_name', with: 'Flower'
+    click_button 'Save'
+    assert has_text?('must be uploaded')
+    
+    # Valid upload
+    attach_file 'widget_thumbnail', example_image_path
+    click_button 'Save'
+    assert_successful_upload
   end
 end
