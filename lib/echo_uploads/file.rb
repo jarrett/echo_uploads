@@ -40,7 +40,7 @@ module EchoUploads
     end
     
     # Pass in an attribute name, an ActionDispatch::UploadedFile, and an options hash.
-    def persist!(attr, file, options)
+    def persist!(attr, file, mapped_file, options)
       # Configure and save the metadata object.
       self.key = options[:key].call file
       self.owner_attr = attr
@@ -51,7 +51,16 @@ module EchoUploads
       save!
     
       # Write the file to the filestore.
-      storage.write key, file
+      if mapped_file
+        file_to_write = nil
+      else
+        file_to_write = file
+      end
+      if file_to_write.is_a?(ActionDispatch::Http::UploadedFile)
+        storage.write key, file.tempfile
+      else
+        storage.write key, file
+      end
     
       # Prune any expired temporary files. (Unless automatic pruning was turned off in
       # the app config.)

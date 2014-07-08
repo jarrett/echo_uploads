@@ -1,6 +1,7 @@
 require 'base64'
 require 'json'
 require 'fileutils'
+require 'tempfile'
 
 module EchoUploads    
   module Model
@@ -54,6 +55,9 @@ module EchoUploads
       #   +1.day+.
       # - +storage+: A class that persists uploaded files to disk, to the cloud, or to
       #   wherever else you want. Defaults to +EchoUploads::FilesystemStore+.
+      # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and an IO-like
+      #   object. It should transform the file data (e.g. scaling an image). It should
+      #   then write the transformed data to the IO.
       def echo_upload(attr, options = {})
         options = {
           expires: 1.day,
@@ -68,8 +72,23 @@ module EchoUploads
         self.echo_uploads_config ||= {}
         self.echo_uploads_config = echo_uploads_config.merge attr => {}
         
-        # Define reader and writer methods for the file attribute.
-        attr_accessor attr
+        # Define reader method for the file attribute.
+        attr_reader attr
+        
+        # Define the writer method for the file attribute.
+        define_method("#{attr}=") do |file|
+          if options[:map]
+            mapped_file = Tempfile.new 'echo_uploads_map', File.join(Rails.root, 'tmp')
+            mapped_file.binmode
+            options[:map].call file, mapped_file
+            mapped_file.rewind
+            send "mapped_#{attr}=", mapped_file
+          end
+          instance_variable_set "@#{attr}", file
+        end
+        
+        # Define the accessor methods for the mapped version of the file.
+        attr_reader "mapped_#{attr}"
         
         # Define the path method. This method will raise if the given storage
         # class doesn't support the #path method.

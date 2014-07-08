@@ -31,7 +31,7 @@ module EchoUploads
           meta = ::EchoUploads::File.new(
             owner: nil, temporary: true, expires_at: options[:expires].from_now
           )
-          meta.persist! attr, file, options
+          meta.persist! attr, file, send("mapped_#{attr}"), options
           send("#{attr}_tmp_metadata=", meta)
         end
       end

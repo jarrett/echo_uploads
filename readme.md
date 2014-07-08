@@ -36,9 +36,8 @@ but you can define you own:
     end
     
     class MyFileStore < EchoUploads::AbstractStore
-      # Persists the file under the given key. Accepts an ActionDispatch::UploadedFile.
-      # Typically should check to see if a file with the same key already exists, and if
-      # so, do nothing.
+      # Persists the file under the given key. Accepts a File. Typically should check to
+      # see if a file with the same key already exists, and if so, do nothing.
       def write(key, file)
         # ...
       end

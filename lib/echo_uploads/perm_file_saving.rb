@@ -20,7 +20,7 @@ module EchoUploads
               meta = ::EchoUploads::File.new(owner: model, temporary: false)
               send("#{attr}_metadata=", meta)
             end
-            meta.persist! attr, file, options
+            meta.persist! attr, file, send("mapped_#{attr}"), options
           elsif meta = send("#{attr}_tmp_metadata") and meta.temporary
             # A file has not been uploaded during this request cycle. However, the
             # submitted form "remembered" a temporary metadata record that was previously
