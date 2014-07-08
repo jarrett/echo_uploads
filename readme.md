@@ -195,12 +195,6 @@ Echo Uploads allows you to store your files in any location and in any manner yo
 Off-the-shelf, it comes with a local filesystem store (`EchoUploads::FilesystemStore`),
 which is the default. You can also define you own:
 
-    class Widget < ActiveRecord::Base
-      include EchoUploads::Model
-      
-      echo_upload :thumbnail, storage: MyFileStore
-    end
-    
     class MyFileStore < EchoUploads::AbstractStore
       # Persists the file under the given key. Accepts a File. Typically should check to
       # see if a file with the same key already exists, and if so, do nothing.
@@ -230,6 +224,18 @@ which is the default. You can also define you own:
         # ...
       end
     end
+    
+    class Widget < ActiveRecord::Base
+      include EchoUploads::Model
+      
+      echo_upload :thumbnail, storage: 'MyFileStore'
+    end
+
+Or, instead of passing the `:storage` option to the `echo_uploads` method, you can
+configure it application-wide:
+
+    # In application.rb, production.rb, etc.
+    config.echo_uploads.storage = 'MyFileStore'
 
 # How it Works
 

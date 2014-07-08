@@ -54,7 +54,8 @@ module EchoUploads
       # - +expires+: Length of time temporary files will be persisted. Defaults to
       #   +1.day+.
       # - +storage+: A class that persists uploaded files to disk, to the cloud, or to
-      #   wherever else you want. Defaults to +EchoUploads::FilesystemStore+.
+      #   wherever else you want. Defaults to +Rails.configuration.echo_uploads.storage+,
+      #   which in turn is +EchoUploads::FilesystemStore+ by default.
       # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and a path to
       #   a temporary file. It should transform the file data (e.g. scaling an image). It
       #   should then write the transformed data to the temporary file path. Can also
@@ -63,7 +64,7 @@ module EchoUploads
       def echo_upload(attr, options = {})
         options = {
           expires: 1.day,
-          storage: ::EchoUploads::FilesystemStore,
+          storage: Rails.configuration.echo_uploads.storage,
           key: ::EchoUploads::File.default_key_proc
         }.merge(options)
         

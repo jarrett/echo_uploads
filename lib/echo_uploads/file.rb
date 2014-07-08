@@ -50,7 +50,11 @@ module EchoUploads
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
       compute_mime!
-      self.storage_type = options[:storage].name
+      if options[:storage].is_a? String
+        self.storage_type = options[:storage]
+      else
+        self.storage_type = options[:storage].name
+      end
       save!
     
       # Write the file to the filestore.
