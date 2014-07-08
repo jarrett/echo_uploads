@@ -161,6 +161,16 @@ As you can see, Echo Uploads has automatically added the methods `#thumbnail_mim
 
 ## Validation
 
+EchoUploads comes with some basic validations:
+
+    class Widget < ActiveRecord::Base
+      include EchoUploads::Model
+      
+      echo_upload :thumbnail
+      
+      validates :thumbnail, upload: {presence: true, max_size: 1.megabyte, extension: ['.jpg', '.png']}
+    end
+
 You can perform custom validations on the uploaded file. Because Echo Uploads defines
 normal attribute methods for uploaded files, you can validate those attributes like any
 other.
@@ -182,13 +192,43 @@ other.
       end
     end
 
+## Transforming the Uploaded File, e.g. Resizing an Image
+
+Sometimes you need to transform the uploaded file before it's saved, e.g. cropping and
+resizing an image. To do that, pass a `:map` option to `echo_upload`. The `:map` option
+can accept either a proc or the name of an instance method as a symbol. The proc or
+method takes two arguments: the original file, which is an instance of `File`; and a
+the path to a temporary output file.
+
+    class Widget < ActiveRecord::Base
+      include EchoUploads::Model
+      
+      echo_upload :thumbnail, map: :resize_thumbnail
+  
+      private
+      
+      def resize_thumbnail(in_file, out_file_path)
+        # We use ImageScience in this example, but you could also use ImageMagick or
+        # any other image resizing library. You could also shell out and call a
+        # command-line library.
+        ImageScience.with_image(in_file.path) do |in_image|
+          in_image.cropped_thumbnail(200) do |out_image|
+            # ImageScience won't let you specify an image format as a param of the #save
+            # method. It guesses based on the file extension. So we have to do a little dance.
+            out_image.save(out_file_path + '.png')
+            FileUtils.mv(out_file_path + '.png', out_file_path)
+          end
+        end
+      end
+    end
+
 # How it Works
 
 ## The Metadata Table
 
-As mentioned under "Usage," Echo Uploads stores metadata for all the files it manages in a
-single table. Even if you have dozens of models with all different kinds of associated
-files, their metadata would all be in that same table.
+As mentioned, Echo Uploads stores metadata for all the files it manages in a single table.
+Even if you have dozens of models with all different kinds of associated files, their
+metadata would all be in that same table.
 
 Echo Uploads manages the lifecycle of objects in that table. You should never have to
 create, update, or delete them.

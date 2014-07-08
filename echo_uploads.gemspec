@@ -3,7 +3,9 @@ Gem::Specification.new do |s|
   s.version      = '0.0.2'
   s.date         = '2014-07-08'
   s.summary      = 'Uploaded files for Rails'
-  s.description  = ''
+  s.description  = "Gracefully handles invalid form submissions, so users don't have to resubmit the file. " +
+                   "Supports transforming the file before saving, e.g. scaling an image. " +
+                   "Compatible with any storage mechanism, including the local filesystem and the cloud."
   s.authors      = ['Jarrett Colby']
   s.email        = 'jarrett@madebyhq.com'
   s.files        = Dir.glob('lib/**/*')
