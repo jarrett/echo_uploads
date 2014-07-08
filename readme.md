@@ -180,6 +180,15 @@ the path to a temporary output file.
       end
     end
 
+You might need to access the transformed file, e.g. in a validation method. If so,
+it's available under an attribute called `"mapped_#{attr}"`, where `attr` is the name
+of the attribute. For example, if you call:
+
+    echo_upload :thumbnail, map: :resize_thumbnail
+
+...then the transformed file will be available under an attribute called
+`#mapped_thumbnail`.
+
 ## Custom File Stores
 
 Echo Uploads allows you to store your files in any location and in any manner you want.
