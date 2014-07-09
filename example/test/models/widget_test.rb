@@ -28,7 +28,7 @@ class WidgetTest < ActiveSupport::TestCase
   
   def assert_remember_meta(record, attr, meta)
     data = JSON.parse(Base64.decode64(record.echo_uploads_data))
-    assert_equal data[attr.to_s]['id'], meta.id
+    assert_equal meta.id, data[attr.to_s].first['id']
   end
   
   test 'creation' do
@@ -92,7 +92,7 @@ class WidgetTest < ActiveSupport::TestCase
     assert_equal wid1, meta.owner
     
     malicious_data = Base64.encode64(JSON.dump({
-      'thumbnail' => {'id' => meta.id}
+      'thumbnail' => [{'id' => meta.id}]
     }))
     wid2 = Widget.create name: 'Eagle', echo_uploads_data: malicious_data
     assert !wid2.persisted?
