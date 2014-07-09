@@ -3,7 +3,7 @@ submissions, so users don't have to resubmit the file. It supports transforming 
 before saving, e.g. scaling an image. It's compatible with any storage mechanism,
 including the local filesystem and the cloud. 
 
-# Getting Started
+# Usage
 
 ## Installation
 
@@ -223,6 +223,11 @@ which is the default. You can also define you own:
         # ...
       end
       
+      # Checks whether the given key exists.
+      def exists?(key)
+        # ...
+      end
+      
       # Optional. Opens the given key and yields an IO object. Not applicable to all
       # storage mechanisms.
       def open(key)
@@ -245,8 +250,64 @@ which is the default. You can also define you own:
 Or, instead of passing the `:storage` option to the `echo_uploads` method, you can
 configure it application-wide:
 
-    # In application.rb, production.rb, etc.
+    # In config/application.rb, config/production.rb, etc.
     config.echo_uploads.storage = 'MyFileStore'
+
+## Filesystem Store
+
+The default, built-in file store uses the server's local filesystem. By default, it places
+files in:
+
+    "#{Rails.root}/uploads/echo_uploads"
+
+If you're deploying with Capistrano or anything similar, be careful that you don't
+re-create the upload folder on each deployment. There are two ways to avoid that.
+
+The first option is to create a folder in a permanent location, e.g. Capistrano's `shared`
+folder, and symlink to that on each deployment. For example, in `deploy.rb`:
+    
+    namespace :deploy do
+      task :symlink_echo_uploads do    
+        run "rm -rf #{deploy_to}/current/echo_uploads/production"
+        run "ln -s #{deploy_to}/shared/echo_uploads #{deploy_to}/current/echo_uploads/production"
+      end
+    end
+    
+    after 'deploy:create_symlink', 'deploy:symlink_echo_uploads'
+
+The second option is to create a folder in a permanent location and configure EchoUploads
+to use it:
+
+    # In production.rb:
+    config.echo_uploads.folder = 'path/to/permanent/folder'
+
+## S3 Store
+
+Echo Uploads also comes with a built-in adapter for Amazon S3. To use it:
+
+    # In config/application.rb, config/production.rb, etc.
+    config.echo_uploads.storage = 'EchoUploads::S3Store'
+
+If you're going to use the built-in S3 adapter, you must configure the bucket and folder
+in which Echo Uploads will store files:
+
+    # In config/application.rb, config/production.rb, etc.
+    config.echo_uploads.s3.bucket = 'my-bucket'
+    config.echo_uploads.s3.folder = 'my/folder'
+
+By default, Echo Uploads assumes you've configured the aws-sdk gem at the application
+level, like this:
+
+    # In config/application.rb, config/production.rb, etc.
+    AWS.config access_key_id: '...', secret_access_key: '...', region: 'us-west-2'
+
+However, if you need to configure AWS application-wide and yet use a *different* config
+just for Echo Uploads, you can do this:
+
+    # In config/application.rb, config/production.rb, etc.
+    configuration.echo_uploads.aws = {
+      access_key_id: '...', secret_access_key: '...', region: 'us-west-2'
+    }
 
 # How it Works
 
@@ -333,31 +394,3 @@ If the attacker uploaded that file, it would overwrite the original.
 Currently (as of June 2014), there is no publicly known way to compute a matching input
 from a SHA-512 hash. So the attack is not currently possible. If that changes, Echo
 Uploads will have to stop using SHA-512, and existing filestores will have to be migrated.
-
-## Filesystem Store
-
-The default, built-in file store uses the server's local filesystem. By default, it places
-files in:
-
-    "#{Rails.root}/uploads/echo_uploads"
-
-If you're deploying with Capistrano or anything similar, be careful that you don't
-re-create the upload folder on each deployment. There are two ways to avoid that.
-
-The first option is to create a folder in a permanent location, e.g. Capistrano's `shared`
-folder, and symlink to that on each deployment. For example, in `deploy.rb`:
-    
-    namespace :deploy do
-      task :symlink_echo_uploads do    
-        run "rm -rf #{deploy_to}/current/echo_uploads/production"
-        run "ln -s #{deploy_to}/shared/echo_uploads #{deploy_to}/current/echo_uploads/production"
-      end
-    end
-    
-    after 'deploy:create_symlink', 'deploy:symlink_echo_uploads'
-
-The second option is to create a folder in a permanent location and configure EchoUploads
-to use it:
-
-    # In production.rb:
-    config.echo_uploads.folder = 'path/to/permanent/folder'

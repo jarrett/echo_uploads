@@ -26,5 +26,18 @@ module Example
     # Uploads gem. Instead, put `gem 'echo_uploads'` in your Gemfile.
     config.autoload_paths += [File.join(Rails.root, '../lib')]
     require File.join(Rails.root, '../lib/echo_uploads/railtie')
+    
+    config.echo_uploads.s3.bucket = 'example'
+    config.echo_uploads.s3.folder = ''
+    
+    # Configure the aws-sdk gem to connect to the fakes3 process.
+    AWS.config(
+      access_key_id: 'abc',
+      secret_access_key: '123',
+      s3_endpoint: 'localhost',
+      s3_port: 4000,
+      s3_force_path_style: true,
+      use_ssl: false
+    )
   end
 end
