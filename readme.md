@@ -193,6 +193,9 @@ The proc or method takes two arguments: the original file, which is an instance 
 and an instance of `EchoUploads::Mapper`. You call `#write` on the mapper for every output
 file you want to write. `#write` yields the path to which the output file must be written.
 
+Mapping occurs in an `after_save` callback. Thus, if validation fails, only the original
+uploaded file is persisted.
+
 You might need to access the transformed file, e.g. in a validation method. If so,
 it's available under an attribute called `"mapped_#{attr}"`, where `attr` is the name
 of the attribute. For example, if you call:
