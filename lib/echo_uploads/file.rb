@@ -9,9 +9,15 @@ module EchoUploads
     
     before_destroy :delete_file_conditionally
     
-    def compute_mime!
+    attr_accessor :file
+    
+    def compute_mime!(options)
       type = MIME::Types.type_for(original_filename).first
       self.mime_type = type ? type.content_type : 'application/octet-stream'
+    end
+    
+    def compute_key!(file, options)
+      self.key = options[:key].call file
     end
     
     # Returns a proc that takes as its only argument an ActionDispatch::UploadedFile
@@ -39,17 +45,25 @@ module EchoUploads
       original_basename + original_extension
     end
     
-    # Pass in an attribute name, an ActionDispatch::UploadedFile, and an options hash.
-    def persist!(attr, file, mapped_files, options)
-      # If .echo_uploads was called with the :map option, we need to use the mapped file.
-      file_to_write = mapped_files ? mapped_files.first : file
+    # Pass in an attribute name, an ActionDispatch::Http::UploadedFile, and an options hash.
+    # Must set #file attribute first.
+    def persist!(attr, options)
+      unless(
+        file.is_a?(ActionDispatch::Http::UploadedFile) or
+        file.is_a?(Rack::Test::UploadedFile)
+      )
+        raise(
+          "Expected #file to be a ActionDispatch::Http::UploadedFile "+
+          "or Rack::Test::UploadedFile, but was #{file.inspect}"
+        )
+      end
       
       # Configure and save the metadata object.
-      self.key = options[:key].call file_to_write
+      compute_key! file, options
       self.owner_attr = attr
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
-      compute_mime!
+      compute_mime! options
       if options[:storage].is_a? String
         self.storage_type = options[:storage]
       else
@@ -59,16 +73,10 @@ module EchoUploads
     
       # Write the file to the filestore.
       
-      if file_to_write.is_a?(ActionDispatch::Http::UploadedFile)
-        storage.write key, file_to_write.tempfile
+      if file.is_a?(ActionDispatch::Http::UploadedFile)
+        storage.write key, file.tempfile
       else
-        storage.write key, file_to_write
-      end
-      if mapped_files and file_to_write == mapped_files.first
-        mapped_files.each do |mapped_file|
-          mapped_file.close
-          ::File.delete mapped_file.path
-        end
+        storage.write key, file
       end
     
       # Prune any expired temporary files. (Unless automatic pruning was turned off in

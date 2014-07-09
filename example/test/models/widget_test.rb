@@ -151,4 +151,8 @@ class WidgetTest < ActiveSupport::TestCase
       assert_equal 200, img.height
     end
   end
+  
+  test 'deletes temporary files created by :map' do
+    skip
+  end
 end

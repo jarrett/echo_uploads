@@ -19,9 +19,11 @@ module EchoUploads
     
     def echo_uploads_data
       Base64.encode64(JSON.dump(self.class.echo_uploads_config.inject({}) do |hash, (attr, cfg)|
-        meta = send("#{attr}_tmp_metadata")
-        if meta
-          hash[attr] = {'id' => meta.id, 'key' => meta.key}
+        metas = send("#{attr}_tmp_metadata")
+        if metas
+          hash[attr] = metas.map do |meta|
+            {'id' => meta.id, 'key' => meta.key}
+          end
         end
         hash
       end)).strip
@@ -30,11 +32,29 @@ module EchoUploads
     # Pass in a hash that's been encoded as JSON and then Base64.
     def echo_uploads_data=(data)
       parsed = JSON.parse Base64.decode64(data)
+      # parsed will look like:
+      # { 'attr1' => [ {'id' => 1, 'key' => 'abc...'} ] }
+      unless parsed.is_a? Hash
+        raise ArgumentError, "Invalid JSON structure in: #{parsed.inspect}"
+      end
       parsed.each do |attr, attr_data|
-        # Must verify that the metadata record is temporary. If not, an attacker could
-        # pass the ID of a permanent record and change its owner.
-        if meta = ::EchoUploads::File.where(id: attr_data['id'], key: attr_data['key'], temporary: true).first
-          send("#{attr}_tmp_metadata=", meta)
+        # If the :map option was passed, there may be multiple variants of the uploaded
+        # file. Even if not, attr_data is still a one-element array.
+        unless attr_data.is_a? Array
+          raise ArgumentError, "Invalid JSON structure in: #{parsed.inspect}"
+        end
+        attr_data.each do |variant_data|
+          unless variant_data.is_a? Hash
+            raise ArgumentError, "Invalid JSON structure in: #{parsed.inspect}"
+          end
+          if meta = ::EchoUploads::File.where(
+            id: variant_data['id'], key: variant_data['key'], temporary: true
+          ).first
+            if send("#{attr}_tmp_metadata").nil?
+              send "#{attr}_tmp_metadata=", []
+            end
+            send("#{attr}_tmp_metadata") << meta
+          end
         end
       end
     end
@@ -90,12 +110,14 @@ module EchoUploads
         # Define the writer method for the file attribute.
         define_method("#{attr}=") do |file|
           if options[:map]
-            mapper = ::EchoUploads::Mapper.new
+            mapper = ::EchoUploads::Mapper.new file
             if options[:map].is_a? Proc
               options[:map].call file, mapper
             else
               send(options[:map], file, mapper)
             end
+            # Write an array of ActionDispatch::Http::UploadedFile objects to the instance
+            # variable.
             send "mapped_#{attr}=", mapper.outputs
           end
           instance_variable_set "@#{attr}", file

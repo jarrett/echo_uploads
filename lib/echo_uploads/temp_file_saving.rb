@@ -28,11 +28,32 @@ module EchoUploads
           # That's fine. We'll now have a permanent and a temporary one. The temporary
           # one will replace the permanent one if and when the user resubmits with
           # valid data.
-          meta = ::EchoUploads::File.new(
-            owner: nil, temporary: true, expires_at: options[:expires].from_now
-          )
-          meta.persist! attr, file, send("mapped_#{attr}"), options
-          send("#{attr}_tmp_metadata=", meta)
+          
+          # Construct an array of EchoUploads::File instances. The array might have only
+          # one element.
+          if options[:multiple]
+            mapped_files = send("mapped_#{attr}") ||
+              raise('echo_uploads called with :multiple, but :map option was missing')
+            metas = mapped_files.map do |mapped_file|
+              ::EchoUploads::File.new(
+                owner: nil, temporary: true, expires_at: options[:expires].from_now,
+                file: mapped_file
+              )
+            end
+          else
+            metas = [::EchoUploads::File.new(
+              owner: nil, temporary: true, expires_at: options[:expires].from_now,
+              file: send(attr)
+            )]
+          end
+          
+          # Persist each file. (There might only be one, though.)
+          metas.each do |meta|
+            meta.persist! attr, options
+          end
+          
+          # Set the attr_tmp_metadata attribute so the form can remember our records.
+          send("#{attr}_tmp_metadata=", metas)
         end
       end
       
