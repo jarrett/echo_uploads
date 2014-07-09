@@ -170,19 +170,15 @@ resizing an image. To do that, pass a `:map` option to `echo_upload`:
       include EchoUploads::Model
       
       echo_upload :thumbnail, map: :resize_thumbnail
-  
-      private
       
-      def resize_thumbnail(in_image, mapper)
+      def resize_thumbnail(input_image, mapper)
         # We use ImageScience in this example, but you could also use ImageMagick or
         # any other image resizing library. You could also shell out and call a
         # command-line library.
-        in_image.cropped_thumbnail(200) do |out_image|
-          # ImageScience won't let you specify an image format as a param of the #save
-          # method. It guesses based on the file extension. So we have to do a little dance.
-          mapper.write do |out_file_path|
-            out_image.save(out_file_path + '.png')
-            FileUtils.mv(out_file_path + '.png', out_file_path)
+        input_image.cropped_thumbnail(200) do |out_image|
+          # The extension argument for Mapper#write gets appended to the out_file_path.
+          mapper.write('.png') do |out_file_path|
+            out_image.save out_file_path
           end
         end
       end
@@ -204,6 +200,37 @@ of the attribute. For example, if you call:
 
 ...then the transformed file will be available under an attribute called
 `#mapped_thumbnail`.
+
+## Multiple Mapped Files
+
+Suppose you want to create more than one version of the uploaded file. For example,
+maybe you want to make thumbnails of different sizes. For that, you use the `:multiple`
+options:
+
+    class Widget < ActiveRecord::Base
+      include EchoUploads::Model
+      
+      echo_upload :thumbnail, map: :resize_thumbnail, multiple: true
+      
+      def resize_thumbnail(input_image, mapper)
+        [100, 200].each do |size|
+          input_image.cropped_thumbnail(size) do |out_image|
+            # You can call mapper.write as many times as you want. Each time you call it,
+            # it will yield a different tempfile path.
+            mapper.write do |out_file_path|
+              out_image.save(out_file_path + '.png')
+              FileUtils.mv(out_file_path + '.png', out_file_path)
+            end
+          end
+        end
+      end
+    end
+
+With the `:multiple` option, you'll be able to address each mapped file individually. For
+example:
+
+    widget.thumbnails[0].path
+    widget.thumbnails[0].key
 
 ## Custom File Stores
 

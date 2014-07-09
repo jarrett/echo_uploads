@@ -12,7 +12,12 @@ module EchoUploads
     attr_accessor :file
     
     def compute_mime!(options)
-      type = MIME::Types.type_for(original_filename).first
+      if file and file.is_a?(::EchoUploads::MappedFile)
+        name = file.mapped_filename
+      else
+        name = original_filename
+      end
+      type = MIME::Types.type_for(name).first
       self.mime_type = type ? type.content_type : 'application/octet-stream'
     end
     

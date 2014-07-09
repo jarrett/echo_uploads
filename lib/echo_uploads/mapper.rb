@@ -19,15 +19,17 @@ module EchoUploads
     
     attr_reader :outputs
     
-    def write
+    def write(ext)
       folder = ::File.join Rails.root, 'tmp/echo_uploads'
       FileUtils.mkdir_p folder
-      path = ::File.join folder, SecureRandom.hex(15)
+      path = ::File.join(folder, SecureRandom.hex(15) + ext)
       yield path
       file = ::File.open path, 'rb'
-      outputs << ::EchoUploads::MappedFile.new(
+      mapped_file = ::EchoUploads::MappedFile.new(
         tempfile: file, filename: @uploaded_file.original_filename
       )
+      mapped_file.mapped_filename = ::File.basename path
+      outputs << mapped_file
     end
   end
 end
