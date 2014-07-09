@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module EchoUploads
   class Mapper
     def initialize(file)
@@ -18,10 +20,12 @@ module EchoUploads
     attr_reader :outputs
     
     def write
-      path = ::File.join Rails.root, 'tmp', SecureRandom.hex(15)
+      folder = ::File.join Rails.root, 'tmp/echo_uploads'
+      FileUtils.mkdir_p folder
+      path = ::File.join folder, SecureRandom.hex(15)
       yield path
       file = ::File.open path, 'rb'
-      outputs << ActionDispatch::Http::UploadedFile.new(
+      outputs << ::EchoUploads::MappedFile.new(
         tempfile: file, filename: @uploaded_file.original_filename
       )
     end

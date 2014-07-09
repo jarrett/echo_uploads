@@ -76,11 +76,16 @@ module EchoUploads
       save!
     
       # Write the file to the filestore.
-      
       if file.is_a?(ActionDispatch::Http::UploadedFile)
         storage.write key, file.tempfile
       else
         storage.write key, file
+      end
+      
+      # If we mapped the files, they were temporarily written to tmp/echo_uploads.
+      # Delete them.
+      if file.is_a?(::EchoUploads::MappedFile)
+        ::File.delete file.path
       end
     
       # Prune any expired temporary files. (Unless automatic pruning was turned off in

@@ -159,6 +159,10 @@ class WidgetTest < ActiveSupport::TestCase
   end
   
   test 'deletes temporary files created by :map' do
-    skip
+    prev_files = Dir.glob File.join(Rails.root, 'tmp/echo_uploads/*')
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1), photo: example_image(2)
+    curr_files = Dir.glob File.join(Rails.root, 'tmp/echo_uploads/*')
+    new_files = curr_files - prev_files
+    assert_empty new_files
   end
 end
