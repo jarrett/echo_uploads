@@ -45,6 +45,10 @@ module EchoUploads
       original_basename + original_extension
     end
     
+    def path
+      storage.path key
+    end
+    
     # Pass in an attribute name, an ActionDispatch::Http::UploadedFile, and an options hash.
     # Must set #file attribute first.
     def persist!(attr, options)

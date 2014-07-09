@@ -60,7 +60,7 @@ module EchoUploads
     end
     
     # Helper method used internally Echo Uploads.
-    def map_metadata(attr)
+    def echo_uploads_map_metadata(attr, options)
       meta = send("#{attr}_metadata")
       meta ? yield(meta) : nil
     end
@@ -127,28 +127,28 @@ module EchoUploads
         # an array.
         attr_accessor "mapped_#{attr}"
         
+        # Define the original filename method.
+        define_method("#{attr}_original_filename") do
+          echo_uploads_map_metadata(attr, options, &:original_filename)
+        end
+        
         # Define the path method. This method will raise if the given storage
         # class doesn't support the #path method.
         define_method("#{attr}_path") do
-          map_metadata(attr) do |meta|
-            meta.storage.path meta.key
+          echo_uploads_map_metadata(attr, options) do |meta|
+            meta.path
           end
         end
         
         # Define the MIME type method.
         define_method("#{attr}_mime") do
-          map_metadata(attr, &:mime_type)
+          echo_uploads_map_metadata(attr, options, &:mime_type)
         end
         alias_method "#{attr}_mime_type", "#{attr}_mime"
         
-        # Define the original filename method.
-        define_method("#{attr}_original_filename") do
-          map_metadata(attr, &:original_filename)
-        end
-        
         # Define the key method
         define_method("#{attr}_key") do
-          map_metadata(attr, &:key)
+          echo_uploads_map_metadata(attr, options, &:key)
         end
         
         # Define the has_x? method. Returns true if a permanent or temporary file has been
@@ -185,9 +185,12 @@ module EchoUploads
             as: :owner, dependent: :destroy, class_name: '::EchoUploads::File'
           )
           
+          alias_method attr.to_s.pluralize, "#{attr}_metadatas"
+          
           define_method("#{attr}_metadata") do
             send("#{attr}_metadatas").first
           end
+          
           define_method("#{attr}_metadata=") do |val|
             send("#{attr}_metadatas") << val
           end
