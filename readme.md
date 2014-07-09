@@ -164,10 +164,7 @@ other.
 ## Transforming the Uploaded File, e.g. Resizing an Image
 
 Sometimes you need to transform the uploaded file before it's saved, e.g. cropping and
-resizing an image. To do that, pass a `:map` option to `echo_upload`. The `:map` option
-can accept either a proc or the name of an instance method as a symbol. The proc or
-method takes two arguments: the original file, which is an instance of `File`; and a
-the path to a temporary output file.
+resizing an image. To do that, pass a `:map` option to `echo_upload`:
 
     class Widget < ActiveRecord::Base
       include EchoUploads::Model
@@ -176,20 +173,25 @@ the path to a temporary output file.
   
       private
       
-      def resize_thumbnail(in_file, out_file_path)
+      def resize_thumbnail(in_image, mapper)
         # We use ImageScience in this example, but you could also use ImageMagick or
         # any other image resizing library. You could also shell out and call a
         # command-line library.
-        ImageScience.with_image(in_file.path) do |in_image|
-          in_image.cropped_thumbnail(200) do |out_image|
-            # ImageScience won't let you specify an image format as a param of the #save
-            # method. It guesses based on the file extension. So we have to do a little dance.
+        in_image.cropped_thumbnail(200) do |out_image|
+          # ImageScience won't let you specify an image format as a param of the #save
+          # method. It guesses based on the file extension. So we have to do a little dance.
+          mapper.write do |out_file_path|
             out_image.save(out_file_path + '.png')
             FileUtils.mv(out_file_path + '.png', out_file_path)
           end
         end
       end
     end
+
+The `:map` option can accept either a proc or the name of an instance method as a symbol.
+The proc or method takes two arguments: the original file, which is an instance of `File`;
+and an instance of `EchoUploads::Mapper`. You call `#write` on the mapper for every output
+file you want to write. `#write` yields the path to which the output file must be written.
 
 You might need to access the transformed file, e.g. in a validation method. If so,
 it's available under an attribute called `"mapped_#{attr}"`, where `attr` is the name

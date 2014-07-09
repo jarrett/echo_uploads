@@ -56,11 +56,20 @@ module EchoUploads
       # - +storage+: A class that persists uploaded files to disk, to the cloud, or to
       #   wherever else you want. Defaults to +Rails.configuration.echo_uploads.storage+,
       #   which in turn is +EchoUploads::FilesystemStore+ by default.
-      # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and a path to
-      #   a temporary file. It should transform the file data (e.g. scaling an image). It
-      #   should then write the transformed data to the temporary file path. Can also
-      #   accept a symbol naming an an instance method that works the same way as the
-      #   previously described Proc.
+      # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and an
+      #   instance of +EchoUploads::Mapper+. It should transform the file data (e.g.
+      #   scaling an image). It should then write the transformed data to one of more
+      #   temporary files. To get the temporary file path(s), call +#write+ on the
+      #   +Mapper+. See readme.md for an example. The +:map+ option can also accept a
+      #   symbol naming an an instance method that works the same way as the previously
+      #   described Proc.
+      # - +multiple+: You use the +:map+ option to write multiple versions of the file.
+      #   E.g. multiple thumbnail sizes. If you do so, you must pass +multiple: true+.
+      #   This will make the association with +EchoUploads::File+ a +has_many+ instead of
+      #   a +has_one+. The first file you write in the map function becomes the default.
+      #   E.g.: Your model is called +Widget+, and the upload file attribute is called
+      #   +photo+. You pass +:map+ with a method that writes three files. If you call
+      #   +Widget#photo_path+, it will return the path to the first of the three files.
       def echo_upload(attr, options = {})
         options = {
           expires: 1.day,
@@ -81,19 +90,19 @@ module EchoUploads
         # Define the writer method for the file attribute.
         define_method("#{attr}=") do |file|
           if options[:map]
-            mapped_file_path = ::File.join Rails.root, 'tmp', SecureRandom.hex(15)
+            mapper = ::EchoUploads::Mapper.new
             if options[:map].is_a? Proc
-              options[:map].call file, mapped_file_path
+              options[:map].call file, mapper
             else
-              send(options[:map], file, mapped_file_path)
+              send(options[:map], file, mapper)
             end
-            mapped_file = ::File.open mapped_file_path, 'rb'
-            send "mapped_#{attr}=", mapped_file
+            send "mapped_#{attr}=", mapper.outputs
           end
           instance_variable_set "@#{attr}", file
         end
         
-        # Define the accessor methods for the mapped version of the file.
+        # Define the accessor methods for the mapped version(s) of the file. Returns
+        # an array.
         attr_accessor "mapped_#{attr}"
         
         # Define the path method. This method will raise if the given storage
@@ -148,10 +157,24 @@ module EchoUploads
         end
         
         # Define the association with the metadata model.
-        has_one("#{attr}_metadata".to_sym,
-          ->() { where(owner_attr: attr) },
-          as: :owner, dependent: :destroy, class_name: '::EchoUploads::File'
-        )
+        if options[:multiple]
+          has_many("#{attr}_metadatas".to_sym,
+            ->() { where(owner_attr: attr) },
+            as: :owner, dependent: :destroy, class_name: '::EchoUploads::File'
+          )
+          
+          define_method("#{attr}_metadata") do
+            send("#{attr}_metadatas").first
+          end
+          define_method("#{attr}_metadata=") do |val|
+            send("#{attr}_metadatas") << val
+          end
+        else
+          has_one("#{attr}_metadata".to_sym,
+            ->() { where(owner_attr: attr) },
+            as: :owner, dependent: :destroy, class_name: '::EchoUploads::File'
+          )
+        end
         
         # Define the temp attribute for the metadata model.
         attr_accessor "#{attr}_tmp_metadata"
