@@ -39,6 +39,12 @@ module EchoUploads
                 )
               end
               send("#{attr}_metadatas=", metas)
+            elsif options[:map]
+              mapped_files = send("mapped_#{attr}")
+              metas = [::EchoUploads::File.new(
+                owner: model, temporary: false, file: mapped_files.first
+              )]
+              send("#{attr}_metadata=", metas.first)
             else
               metas = [::EchoUploads::File.new(
                 owner: model, temporary: false, file: send(attr)

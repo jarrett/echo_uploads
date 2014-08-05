@@ -144,6 +144,7 @@ class WidgetTest < ActiveSupport::TestCase
     assert_equal 'test_textfile_1.txt', wid2.manual_original_filename
   end
   
+  # Tests :map with :multiple.
   test 'resizes photos' do
     wid = Widget.create! name: 'Flower', thumbnail: example_image(1), photo: example_image(2)
     
@@ -158,6 +159,14 @@ class WidgetTest < ActiveSupport::TestCase
       assert_equal 300, img.height
     end
     assert_equal 'image/jpeg', wid.photos[1].mime_type
+  end
+  
+  # Tests :map without :multiple
+  test 'reverses warranty text' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image, warranty: example_textfile
+    assert File.exists?(wid.warranty_path)
+    text = File.read wid.warranty_path
+    assert_equal '.elif txet elpmaxE', text
   end
   
   test 'deletes temporary files created by :map' do

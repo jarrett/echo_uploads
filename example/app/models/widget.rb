@@ -4,6 +4,7 @@ class Widget < ActiveRecord::Base
   include EchoUploads::Model
   
   echo_upload :manual
+  echo_upload :warranty, map: :reverse_warranty
   echo_upload :thumbnail
   echo_upload :photo, map: :resize_photo, multiple: true
   
@@ -24,6 +25,14 @@ class Widget < ActiveRecord::Base
         mapper.write('.jpg') do |out_file_path|
           out_image.save out_file_path
         end
+      end
+    end
+  end
+  
+  def reverse_warranty(in_file, mapper)
+    mapper.write('.txt') do |out_file_path|
+      File.open(out_file_path, 'w') do |f|
+        f << in_file.read.reverse
       end
     end
   end
