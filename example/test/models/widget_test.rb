@@ -169,6 +169,20 @@ class WidgetTest < ActiveSupport::TestCase
     assert_equal '.elif txet elpmaxE', text
   end
   
+  test 'does not try to persist the permanent file twice even if saved twice' do
+    # If we tried to persist twice, the manual's mapping would raise a 'No such file or
+    # directory' exception.
+    wid = Widget.create! name: 'Flower', thumbnail: example_image, warranty: example_textfile
+    wid.save!
+  end
+  
+  test 'does not try to persist the temporary file twice even if saved twice' do
+    # Invalid attributes.
+    wid = Widget.create warranty: example_textfile
+    wid.save
+    assert wid.new_record?
+  end
+  
   test 'deletes temporary files created by :map' do
     prev_files = Dir.glob File.join(Rails.root, 'tmp/echo_uploads/*')
     wid = Widget.create! name: 'Flower', thumbnail: example_image(1), photo: example_image(2)

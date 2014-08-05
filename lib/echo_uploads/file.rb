@@ -80,7 +80,9 @@ module EchoUploads
       end
       save!
     
-      # Write the file to the filestore.
+      # Write the file to the filestore. It's possible that #file is an instance of
+      # EchoUploads::MappedFile, which is a subclass of
+      # ActionDispatch::Http::UploadedFile.
       if file.is_a?(ActionDispatch::Http::UploadedFile)
         storage.write key, file.tempfile
       else

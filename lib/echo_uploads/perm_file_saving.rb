@@ -8,8 +8,14 @@ module EchoUploads
       def configure_perm_file_saving(attr, options)
         # Save the file and the metadata after this model saves.
         after_save do |model|
-          if (file = send(attr)).present?
-            # A file is being uploaded during this request cycle.
+          @echo_uploads_perm_files_saved ||= {}
+          if (file = send(attr)).present? and @echo_uploads_perm_files_saved[attr.to_sym] != file
+            # A file is being uploaded during this request cycle. Further, we have not
+            # already done the permanent file saving during this request cycle. (It's
+            # not uncommon for a model to be saved twice in one request. If we ran this
+            # code twice, we'd have duplicate effort at best and exceptions at worst.)
+            
+            @echo_uploads_perm_files_saved[attr.to_sym] = file
             
             if options[:multiple]
               metas = send("#{attr}_metadatas")
