@@ -140,6 +140,11 @@ EchoUploads comes with some basic validations:
       validates :thumbnail, upload: {presence: true, max_size: 1.megabyte, extension: ['.jpg', '.png']}
     end
 
+The `presence` validator doesn't require a new file to be uploaded on every request cycle.
+(That's rarely what you want.) If no file has been submitted this request cycle, but a
+file was previously saved, the `presence` validator passes. Internally, it uses the
+`has_x?` method--which, in the example above, would be `has_thumbnail?`.
+
 You can perform custom validations on the uploaded file. Because Echo Uploads defines
 normal attribute methods for uploaded files, you can validate those attributes like any
 other.
@@ -149,7 +154,7 @@ other.
       
       echo_upload :thumbnail
       
-      validates :thumbnail, presence: true
+      validates :thumbnail, upload: {presence: true}
       validate :thumbnail_formatted_correctly
       
       def thumbnail_formatted_correctly
