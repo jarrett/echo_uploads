@@ -15,6 +15,10 @@ class SnarkTest < ActiveSupport::TestCase
     ensure_s3_bucket_exists
   end
   
+  after do
+    empty_s3
+  end
+  
   def with_s3
     begin
       yield

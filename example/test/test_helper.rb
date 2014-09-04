@@ -17,7 +17,6 @@ class ActiveSupport::TestCase
     DatabaseCleaner.clean
     
     FileUtils.rm_rf Dir.glob(File.join(Rails.root, 'echo_uploads/test/*'))
-    empty_s3
     
     Capybara.use_default_driver
   end
