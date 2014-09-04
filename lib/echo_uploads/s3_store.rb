@@ -22,6 +22,7 @@ module EchoUploads
     end
     
     def write(key, file)
+      file.rewind
       bucket.objects[path(key)].write file
     end
     
