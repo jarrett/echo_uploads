@@ -28,7 +28,6 @@ module Example
     require File.join(Rails.root, '../lib/echo_uploads/railtie')
     
     config.echo_uploads.s3.bucket = 'example'
-    config.echo_uploads.s3.folder = ''
     
     # Configure the aws-sdk gem to connect to the fakes3 process.
     AWS.config(

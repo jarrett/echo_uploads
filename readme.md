@@ -295,7 +295,9 @@ configure it application-wide:
 The default, built-in file store uses the server's local filesystem. By default, it places
 files in:
 
-    "#{Rails.root}/uploads/echo_uploads"
+    "#{Rails.root}/uploads/echo_uploads/ENVIRONMENT"
+
+...where `ENVIRONMENT` is one of `production`, `development`, or `test`.
 
 If you're deploying with Capistrano or anything similar, be careful that you don't
 re-create the upload folder on each deployment. There are two ways to avoid that.
@@ -325,12 +327,21 @@ Echo Uploads also comes with a built-in adapter for Amazon S3. To use it:
     # In config/application.rb, config/production.rb, etc.
     config.echo_uploads.storage = 'EchoUploads::S3Store'
 
-If you're going to use the built-in S3 adapter, you must configure the bucket and folder
-in which Echo Uploads will store files:
+If you're going to use the built-in S3 adapter, you must configure the bucket in which
+Echo Uploads will store files:
 
     # In config/application.rb, config/production.rb, etc.
     config.echo_uploads.s3.bucket = 'my-bucket'
-    config.echo_uploads.s3.folder = 'my/folder'
+
+By default, it places files in the following path within your bucket:
+
+    "echo_uploads/ENVIRONMENT"
+
+...where `ENVIRONMENT` is one of `production`, `development`, or `test`. Be sure to create
+the necessary folder(s) on S3. You can override the path within the bucket like this:
+    
+    # In config/application.rb, config/production.rb, etc.
+    config.echo_uploads.s3.folder = 'custom/per-environment/folder'
 
 By default, Echo Uploads assumes you've configured the aws-sdk gem at the application
 level, like this:

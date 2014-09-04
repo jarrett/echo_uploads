@@ -1,2 +1,2 @@
 mkdir -p tmp/fakes3
-fakes3 -r tmp/fakes3 -p 4000
+bundle exec fakes3 -r tmp/fakes3 -p 4000

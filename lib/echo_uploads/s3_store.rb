@@ -3,26 +3,26 @@
 module EchoUploads
   class S3Store < ::EchoUploads::AbstractStore    
     def delete(key)
-      bucket.objects[key].delete
+      bucket.objects[path(key)].delete
     end
     
     def exists?(key)
-      bucket.objects[key].exists?
+      bucket.objects[path(key)].exists?
     end
     
     def read(key)
       data = ''
-      bucket.objects[key].read { |chunk| data << chunk }
+      bucket.objects[path(key)].read { |chunk| data << chunk }
       data
     end
     
     def url(key, options = {})
       options = {method: :read}.merge(options)
-      bucket.objects[key].url_for options.delete(:method), options
+      bucket.objects[path(key)].url_for options.delete(:method), options
     end
     
     def write(key, file)
-      bucket.objects[key].write file
+      bucket.objects[path(key)].write file
     end
     
     private
@@ -43,9 +43,15 @@ module EchoUploads
     end
     
     def folder
-      Rails.configuration.echo_uploads.s3.folder || raise(
-        'You must define config.echo_uploads.s3.folder in your application config.'
-      )
+      if Rails.configuration.respond_to?(:echo_uploads) and Rails.configuration.echo_uploads.s3.folder
+        Rails.configuration.echo_uploads.s3.folder
+      else
+        ::File.join 'echo_uploads', Rails.env
+      end
+    end
+    
+    def path(key)
+      ::File.join folder, key
     end
   end
 end

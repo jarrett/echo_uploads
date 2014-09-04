@@ -190,4 +190,9 @@ class WidgetTest < ActiveSupport::TestCase
     new_files = curr_files - prev_files
     assert_empty new_files
   end
+  
+  test 'tracks dirtiness of file attributes' do
+    skip
+    # http://api.rubyonrails.org/classes/ActiveModel/Dirty.html
+  end
 end
