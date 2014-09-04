@@ -178,6 +178,12 @@ module EchoUploads
           send("#{attr}_tmp_metadata").present?
         end
         
+        # Define the read_x method. Delegates to the #read method of the store (e.g.
+        # FilesystemStore).
+        define_method("read_#{attr}") do
+          echo_uploads_map_metadata(attr, options, &:read)
+        end
+        
         # Define the association with the metadata model.
         if options[:multiple]
           has_many("#{attr}_metadatas".to_sym,

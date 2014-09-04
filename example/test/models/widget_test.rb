@@ -195,4 +195,10 @@ class WidgetTest < ActiveSupport::TestCase
     skip
     # http://api.rubyonrails.org/classes/ActiveModel/Dirty.html
   end
+  
+  test 'supports read_manual' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image, manual: example_textfile
+    assert wid.has_prm_manual?
+    assert_equal 'Example text file.', wid.read_manual
+  end
 end

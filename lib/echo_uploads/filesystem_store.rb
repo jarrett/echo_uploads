@@ -18,7 +18,7 @@ module EchoUploads
     end
     
     def read(key)
-      File.read path(key)
+      ::File.read path(key)
     end
     
     def write(key, file)

@@ -111,6 +111,10 @@ module EchoUploads
       end
     end
     
+    def read
+      storage.read key
+    end
+    
     def storage
       class_from_string(storage_type).new
     end
