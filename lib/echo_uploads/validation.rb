@@ -56,8 +56,8 @@ module EchoUploads
               raise ArgumentError, "Expected ##{attr} to respond to #original_filename"
             end
       
-            ext = ::File.extname val.original_filename
-            unless options[:extension].include?(ext)
+            ext = ::File.extname(val.original_filename).downcase
+            unless options[:extension].include?(ext.downcase)
               record.errors[attr] << (
                 options[:message] ||
                 "must have one of the following extensions: #{options[:extension].join(',')}"
