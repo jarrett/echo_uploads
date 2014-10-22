@@ -24,6 +24,9 @@ module EchoUploads
       FileUtils.mkdir_p folder
       path = ::File.join(folder, SecureRandom.hex(15) + ext)
       yield path
+      unless ::File.exists? path
+        raise "Called echo_upload with the :map option, but failed to write a file to #{path}"
+      end
       file = ::File.open path, 'rb'
       mapped_file = ::EchoUploads::MappedFile.new(
         tempfile: file, filename: @uploaded_file.original_filename
