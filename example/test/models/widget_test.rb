@@ -201,4 +201,11 @@ class WidgetTest < ActiveSupport::TestCase
     assert wid.has_prm_manual?
     assert_equal 'Example text file.', wid.read_manual
   end
+  
+  test 'knows its size' do
+    w = Widget.create! name: 'Lorem Ipsum', thumbnail: example_image
+    assert_equal 1421, w.thumbnail_size
+    w.reload
+    assert_equal 1421, w.thumbnail_size
+  end
 end

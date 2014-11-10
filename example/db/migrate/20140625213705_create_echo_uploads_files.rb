@@ -9,6 +9,7 @@ class CreateEchoUploadsFiles < ActiveRecord::Migration
       t.string :original_basename
       t.string :original_extension
       t.string :mime_type
+      t.integer :size
       t.boolean :temporary
       t.datetime :expires_at
       t.timestamps

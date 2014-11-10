@@ -184,6 +184,10 @@ module EchoUploads
           echo_uploads_map_metadata(attr, options, &:read)
         end
         
+        define_method("#{attr}_size") do
+          echo_uploads_map_metadata(attr, options, &:size)
+        end
+        
         # Define the association with the metadata model.
         if options[:multiple]
           has_many("#{attr}_metadatas".to_sym,

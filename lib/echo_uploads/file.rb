@@ -72,6 +72,7 @@ module EchoUploads
       self.owner_attr = attr
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
+      self.size = file.size
       compute_mime! options
       if options[:storage].is_a? String
         self.storage_type = options[:storage]
