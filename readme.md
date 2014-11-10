@@ -26,6 +26,7 @@ follows:
       t.string :original_basename
       t.string :original_extension
       t.string :mime_type
+      t.integer :size
       t.boolean :temporary
       t.datetime :expires_at
       t.timestamps
@@ -127,6 +128,10 @@ controller like this:
 
 As you can see, Echo Uploads has automatically added the methods `#thumbnail_mime` and
 `#thumbnail_original_filename` (amongst others).
+
+If you want to use `send_data` instead of `send_file`, you can do something like this:
+
+    send_data widget.read_thumbnail
 
 ## Validation
 
@@ -356,6 +361,25 @@ just for Echo Uploads, you can do this:
     configuration.echo_uploads.aws = {
       access_key_id: '...', secret_access_key: '...', region: 'us-west-2'
     }
+
+# Model Methods Reference
+
+Echo Uploads adds some methods to your model. Let's assume you called:
+
+    echo_upload :thumbnail
+
+Then, your model would have the following methods:
+
+  * `thumbnail_path`: Returns the path on disk to the file. Not applicable for some
+    file stores, such as Amazon S3.
+  * `read_thumbnail`: Returns the binary data.
+  * `thumbnail_size`: Returns the file size in bytes.
+  * `thumbnail_original_filename`: Returns the name of the file as it existed on the
+    user's disk.
+  * `thumbnail_mime`: Returns the MIME type of the file. Aliased as `thumbnail_mime_type`.
+  * `thumbnail_key`: Returns the file's unique key (usually a SHA-512 hash).
+  * `has_prm_thumbnail?`: Whether a permanent file exists.
+  * `has_tmp_thumbnail?`: Whether a temporary file exists.
 
 # How it Works
 
