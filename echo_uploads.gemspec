@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name         = 'echo_uploads'
-  s.version      = '0.0.10'
-  s.date         = '2014-10-22'
+  s.version      = '0.0.11'
+  s.date         = '2014-11-10'
   s.summary      = 'Uploaded files for Rails'
   s.description  = "Gracefully handles invalid form submissions, so users don't have to resubmit the file. " +
                    "Supports transforming the file before saving, e.g. scaling an image. " +
