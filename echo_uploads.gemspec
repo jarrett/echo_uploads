@@ -1,6 +1,8 @@
+require File.expand_path(File.join(File.dirname(__FILE__), 'lib', 'echo_uploads', 'version'))
+
 Gem::Specification.new do |s|
   s.name         = 'echo_uploads'
-  s.version      = '0.0.11'
+  s.version      = EchoUploads::VERSION
   s.date         = '2014-11-10'
   s.summary      = 'Uploaded files for Rails'
   s.description  = "Gracefully handles invalid form submissions, so users don't have to resubmit the file. " +
@@ -12,6 +14,6 @@ Gem::Specification.new do |s|
   s.homepage     = 'https://github.com/jarrett/echo_uploads'
   s.license      = 'MIT'
   
-  s.add_runtime_dependency 'mime-types'
+  s.add_runtime_dependency 'mime-types', '~> 2'
   s.add_development_dependency 'turn', '~> 0'
 end

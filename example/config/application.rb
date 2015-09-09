@@ -30,13 +30,12 @@ module Example
     config.echo_uploads.s3.bucket = 'example'
     
     # Configure the aws-sdk gem to connect to the fakes3 process.
-    AWS.config(
+    Aws.config.update(
       access_key_id: 'abc',
       secret_access_key: '123',
-      s3_endpoint: 'localhost',
-      s3_port: 4000,
-      s3_force_path_style: true,
-      use_ssl: false
+      endpoint: 'http://localhost:4000',
+      force_path_style: true,
+      region: 'IGNORED'
     )
   end
 end

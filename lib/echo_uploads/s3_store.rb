@@ -1,46 +1,48 @@
 # Uses the official Amazon Web Services SDK gem:
 #   gem install aws-sdk
+# Incompatible with 1.x.x versions of the aws-sdk gem.
 module EchoUploads
   class S3Store < ::EchoUploads::AbstractStore    
     def delete(key)
-      bucket.objects[path(key)].delete
+      bucket.object(path(key)).delete
     end
     
     def exists?(key)
-      bucket.objects[path(key)].exists?
+      bucket.object(path(key)).exists?
     end
     
     def read(key)
-      data = ''
-      bucket.objects[path(key)].read { |chunk| data << chunk }
-      data
+      bucket.object(path(key)).get.body.read
     end
     
     def url(key, options = {})
-      options = {method: :read}.merge(options)
-      bucket.objects[path(key)].url_for options.delete(:method), options
+      options = {method: :get}.merge(options)
+      url_str = bucket.object(path(key)).presigned_url options.delete(:method), options
+      URI.parse url_str
     end
     
     def write(key, file)
       file.rewind
-      bucket.objects[path(key)].write file
+      bucket.object(path(key)).put body: file
     end
     
     private
     
+    def aws_config
+      Rails.configuration.echo_uploads.aws || {}
+    end
+    
     def bucket
-      if Rails.configuration.echo_uploads.aws
-        s3 = AWS::S3.new Rails.configuration.echo_uploads.aws
-      else
-        s3 = AWS::S3.new
+      if @bucket.nil?
+        bucket_name = Rails.configuration.echo_uploads.s3.bucket || raise(
+          'You must define config.echo_uploads.s3.bucket in your application config.'
+        )
+        @bucket = Aws::S3::Bucket.new bucket_name, aws_config
+        unless @bucket.exists?
+          raise "S3 bucket does not exist: #{bucket_name.inspect}"
+        end
       end
-      bucket_name = Rails.configuration.echo_uploads.s3.bucket || raise(
-        'You must define config.echo_uploads.s3.bucket in your application config.'
-      )
-      if s3.buckets[bucket_name].nil?
-        s3.buckets.create bucket_name
-      end
-      s3.buckets[bucket_name]
+      @bucket
     end
     
     def folder

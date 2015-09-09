@@ -1,5 +1,6 @@
 module EchoUploads; end
 
+require 'echo_uploads/version'
 require 'echo_uploads/railtie'
 require 'echo_uploads/validation'
 require 'echo_uploads/perm_file_saving'

@@ -21,39 +21,35 @@ class ActiveSupport::TestCase
     Capybara.use_default_driver
   end
   
-  def assert_bucket_count(count, bucket_name, prefix = 'echo_uploads/test')
-    s3 = AWS::S3.new
-    bucket = s3.buckets[bucket_name]
-    assert bucket.exists?, "Expected S3 bucket #{bucket_name} to exist"
-    assert_equal(count, bucket.objects.with_prefix(prefix).count,
-      "Expected S3 bucket to contain #{count} objects, but had #{bucket.objects.count}.\n\n" +
+  def assert_bucket_count(expected_count, bucket_name, prefix = 'echo_uploads/test')
+    actual_count = Aws::S3::Bucket.new(bucket_name).objects.count
+    assert_equal(
+      expected_count, actual_count,
+      "Expected S3 bucket to contain #{expected_count} objects, but had #{actual_count}.\n\n" +
       "Objects were:\n\n" + bucket.objects.to_a.map(&:key).inspect
     )
   end
   
+  def bucket
+    @bucket ||= Aws::S3::Bucket.new(Rails.configuration.echo_uploads.s3.bucket)
+  end
+  
   def empty_s3
-    # Be careful doing this in a real app! This empties the entire bucket, which may not
-    # be what you want. More commonly, you'd use:
-    #   s3 = AWS::S3.new
-    #   bucket = s3.buckets['example']
-    #   bucket.objects.with_prefix('echo_uploads/test/').delete_all
-    # which would only delete the files from the test folder.
-    s3 = AWS::S3.new
-    bucket = s3.buckets['example']
-    # There's a cleaner way to do this with the real S3 (bucket.delete!), but it doesn't
-    # work with fakes3.
+    # Be careful doing this in a real app! This deletes the entire bucket, which may not
+    # be what you want.
     if bucket.exists?
-      bucket.objects.each(&:delete)
-      bucket.delete
+      bucket.objects.each do |obj|
+        obj.delete
+      end
+      bucket.delete!
     end
   end
   
   def ensure_s3_bucket_exists
-    s3 = AWS::S3.new
-    unless s3.buckets['example'].exists?
-      s3.buckets.create 'example'
+    unless bucket.exists?
+      bucket.create
     end
-    assert s3.buckets['example'].exists?, 'Expected S3 bucket "example" to exist'
+    assert bucket.exists?, 'Expected S3 bucket "example" to exist'
   end
 end
 
