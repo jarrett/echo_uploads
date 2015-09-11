@@ -21,7 +21,7 @@ module EchoUploads
       ::File.read path(key)
     end
     
-    def write(key, file)
+    def write(key, file, metadata)
       _path = path key
       unless ::File.exists?(_path)
         unless ::File.exists?(folder)

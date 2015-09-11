@@ -1,5 +1,9 @@
 source 'https://rubygems.org'
 
+# See config/application.rb where we load Echo Uploads. In a real app, you'd require
+# Echo Uploads in the Gemfile, like this:
+# gem 'echo_uploads'
+
 gem 'rails'
 gem 'sqlite3'
 gem 'sass-rails'

@@ -250,8 +250,9 @@ which is the default. You can also define you own:
 
     class MyFileStore < EchoUploads::AbstractStore
       # Persists the file under the given key. Accepts a File. Typically should check to
-      # see if a file with the same key already exists, and if so, do nothing.
-      def write(key, file)
+      # see if a file with the same key already exists, and if so, do nothing. metadata
+      # is an EchoUploads::File.
+      def write(key, file, metadata)
         # ...
       end
       

@@ -21,9 +21,9 @@ module EchoUploads
       URI.parse url_str
     end
     
-    def write(key, file)
+    def write(key, file, metadata)
       file.rewind
-      bucket.object(path(key)).put body: file
+      bucket.object(path(key)).put body: file, content_type: metadata.mime_type
     end
     
     private

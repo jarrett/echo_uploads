@@ -85,9 +85,9 @@ module EchoUploads
       # EchoUploads::MappedFile, which is a subclass of
       # ActionDispatch::Http::UploadedFile.
       if file.is_a?(ActionDispatch::Http::UploadedFile)
-        storage.write key, file.tempfile
+        storage.write key, file.tempfile, self
       else
-        storage.write key, file
+        storage.write key, file, self
       end
       
       # If we mapped the files, they were temporarily written to tmp/echo_uploads.

@@ -49,6 +49,17 @@ class SnarkTest < ActiveSupport::TestCase
     end
   end
   
+  test 'sets content type' do
+    with_s3 do
+      s = Snark.create! manual: example_textfile
+      storage = s.manual_metadata.storage
+      url = storage.url s.manual_metadata.key
+      url.scheme = 'http'
+      response = Net::HTTP.get_response url
+      assert_equal 'text/plain', response['Content-Type']
+    end
+  end
+  
   test 'delete' do
     s = Snark.create! manual: example_textfile
     storage = s.manual_metadata.storage
