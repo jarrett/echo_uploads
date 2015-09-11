@@ -38,11 +38,10 @@ class SnarkTest < ActiveSupport::TestCase
     end
   end
   
-  test 'generate S3 URL via SDK' do
+  test 'url' do
     with_s3 do
       s = Snark.create! manual: example_textfile
-      storage = s.manual_metadata.storage
-      url = storage.url s.manual_metadata.key
+      url = s.manual_url
       url.scheme = 'http'
       text = Net::HTTP.get url
       assert_equal File.read(example_textfile_path), text
@@ -53,10 +52,17 @@ class SnarkTest < ActiveSupport::TestCase
     with_s3 do
       s = Snark.create! manual: example_textfile
       storage = s.manual_metadata.storage
-      url = storage.url s.manual_metadata.key
+      url = storage.url s.manual_key
       url.scheme = 'http'
       response = Net::HTTP.get_response url
       assert_equal 'text/plain', response['Content-Type']
+    end
+  end
+  
+  test 'storage' do
+    with_s3 do
+      s = Snark.create! manual: example_textfile
+      assert_kind_of EchoUploads::S3Store, s.manual_storage
     end
   end
   

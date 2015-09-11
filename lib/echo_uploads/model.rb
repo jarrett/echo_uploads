@@ -151,6 +151,26 @@ module EchoUploads
           echo_uploads_map_metadata(attr, options, &:key)
         end
         
+        # Define the storage method.
+        define_method("#{attr}_storage") do
+          echo_uploads_map_metadata(attr, options, &:storage)
+        end
+        
+        # Define the url method.
+        define_method("#{attr}_url") do |options = {}|
+          echo_uploads_map_metadata(attr, options) do |meta|
+            if meta.storage.respond_to?(:url)
+              meta.storage.url meta.key, options
+            else
+              raise(
+                NoMethodError,
+                "The Echo Uploads file store you've selected, " +
+                "{meta.storage.class.to_s}, does not support the #url method."
+              )
+            end
+          end
+        end
+        
         # Define the has_x? method. Returns true if a permanent or temporary file has been
         # persisted, or if a file (which may not be valid) has been uploaded this request
         # cycle.
