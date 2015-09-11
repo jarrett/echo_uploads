@@ -17,8 +17,7 @@ module EchoUploads
     
     def url(key, options = {})
       options = {method: :get}.merge(options)
-      url_str = bucket.object(path(key)).presigned_url options.delete(:method), options
-      URI.parse url_str
+      bucket.object(path(key)).presigned_url options.delete(:method), options
     end
     
     def write(key, file, metadata)

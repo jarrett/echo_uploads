@@ -41,7 +41,7 @@ class SnarkTest < ActiveSupport::TestCase
   test 'url' do
     with_s3 do
       s = Snark.create! manual: example_textfile
-      url = s.manual_url
+      url = URI.parse(s.manual_url)
       url.scheme = 'http'
       text = Net::HTTP.get url
       assert_equal File.read(example_textfile_path), text
@@ -52,7 +52,7 @@ class SnarkTest < ActiveSupport::TestCase
     with_s3 do
       s = Snark.create! manual: example_textfile
       storage = s.manual_metadata.storage
-      url = storage.url s.manual_key
+      url = URI.parse(storage.url s.manual_key)
       url.scheme = 'http'
       response = Net::HTTP.get_response url
       assert_equal 'text/plain', response['Content-Type']
