@@ -308,8 +308,19 @@ files in:
 If you're deploying with Capistrano or anything similar, be careful that you don't
 re-create the upload folder on each deployment. There are two ways to avoid that.
 
+### Option 1: Symlink
+
 The first option is to create a folder in a permanent location, e.g. Capistrano's `shared`
-folder, and symlink to that on each deployment. For example, in `deploy.rb`:
+folder, and symlink to that on each deployment.
+
+In **Capistrano 3**, set a symlinked directory in `config/deploy/production.rb`:
+
+    set :linked_dirs, %w{echo_uploads}
+
+If you're calling `set :linked_dirs` anywhere else, don't just paste in the above.
+Instead, add `echo_uploads` to the pre-existing list.
+
+In **Capistrano 2**, edit `config/deploy.rb`:
     
     namespace :deploy do
       task :symlink_echo_uploads do    
@@ -319,6 +330,8 @@ folder, and symlink to that on each deployment. For example, in `deploy.rb`:
     end
     
     after 'deploy:create_symlink', 'deploy:symlink_echo_uploads'
+
+### Option 2: Override Echo Uploads Default Folder
 
 The second option is to create a folder in a permanent location and configure EchoUploads
 to use it:
