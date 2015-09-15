@@ -315,10 +315,7 @@ folder, and symlink to that on each deployment.
 
 In **Capistrano 3**, set a symlinked directory in `config/deploy/production.rb`:
 
-    set :linked_dirs, %w{echo_uploads}
-
-If you're calling `set :linked_dirs` anywhere else, don't just paste in the above.
-Instead, add `echo_uploads` to the pre-existing list.
+    set :linked_dirs, fetch(:linked_dirs, []).push(:echo_uploads)
 
 In **Capistrano 2**, edit `config/deploy.rb`:
     
