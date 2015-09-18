@@ -165,7 +165,7 @@ module EchoUploads
               raise(
                 NoMethodError,
                 "The Echo Uploads file store you've selected, " +
-                "{meta.storage.class.to_s}, does not support the #url method."
+                "#{meta.storage.class.to_s}, does not support the #url method."
               )
             end
           end
