@@ -3,7 +3,7 @@ require File.expand_path(File.join(File.dirname(__FILE__), 'lib', 'echo_uploads'
 Gem::Specification.new do |s|
   s.name         = 'echo_uploads'
   s.version      = EchoUploads::VERSION
-  s.date         = '2014-11-10'
+  s.date         = Time.now.strftime('%Y-%m-%d')
   s.summary      = 'Uploaded files for Rails'
   s.description  = "Gracefully handles invalid form submissions, so users don't have to resubmit the file. " +
                    "Supports transforming the file before saving, e.g. scaling an image. " +
