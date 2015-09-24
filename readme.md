@@ -392,6 +392,39 @@ Then, your model would have the following methods:
   * `has_prm_thumbnail?`: Whether a permanent file exists.
   * `has_tmp_thumbnail?`: Whether a temporary file exists.
 
+# Eager-loading with `#includes`
+
+Each uploaded file has exactly one corresponding record in the metadata table. (See
+"Metadata Table" below for more info.) You may need to eager-load from that table. For
+example, suppose you have a `User` model with an `avatar` upload:
+
+    # app/models/user.rb
+    class User < ActiveRecord::Base
+      echo_upload :avatar
+    end
+    
+    # app/controllers/users_controller.rb
+    class UsersController < ApplicationController
+      def index
+        # Uh-oh. Without eager loading, this queries echo_uploads_files once per user.
+        @users = User.all
+      end
+    end
+
+The above has a problem. Without eager loading, the call to `User.all` queries the
+`echo_uploads_files` table once per user. (To understand why, see
+"[Eager Loading](http://guides.rubyonrails.org/active_record_querying.html#eager-loading-associations)"
+in the Rails guide.) This is known as the N + 1 queries problem. We can solve this with
+eager loading:
+
+    @users = User.includes(:avatar_metadata)
+
+This works because Echo Uploads defines an association called `avatar_metadata`. Each
+call to `echo_upload` defines a new association, where the name is
+`your_attribute_name_metadata`. For example, `echo_upload :photo` would define the
+association `photo_metadata`, `echo_upload :zip_file` would define `zip_file_metadata`,
+etc.
+
 # How it Works
 
 ## The Metadata Table
