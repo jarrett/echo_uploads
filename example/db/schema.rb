@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140708213050) do
+ActiveRecord::Schema.define(version: 20151228175121) do
 
   create_table "echo_uploads_files", force: true do |t|
     t.integer  "owner_id"
@@ -33,7 +33,19 @@ ActiveRecord::Schema.define(version: 20140708213050) do
   add_index "echo_uploads_files", ["owner_id"], name: "index_echo_uploads_files_on_owner_id"
   add_index "echo_uploads_files", ["temporary"], name: "index_echo_uploads_files_on_temporary"
 
+  create_table "middens", force: true do |t|
+    t.integer  "squib_id",   null: false
+    t.string   "name",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "snarks", force: true do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "squibs", force: true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
   end

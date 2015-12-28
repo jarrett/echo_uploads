@@ -10,14 +10,6 @@ class SnarkTest < ActiveSupport::TestCase
     empty_s3
   end
   
-  def with_s3
-    begin
-      yield
-    rescue Errno::ECONNREFUSED
-      raise 'fakes3 is not running'
-    end
-  end
-  
   test 'writes to correct path on S3' do
     with_s3 do
       s = Snark.create! manual: example_textfile
@@ -43,6 +35,7 @@ class SnarkTest < ActiveSupport::TestCase
       s = Snark.create! manual: example_textfile
       url = URI.parse(s.manual_url)
       url.scheme = 'http'
+      url.port = 4000
       text = Net::HTTP.get url
       assert_equal File.read(example_textfile_path), text
     end
@@ -54,6 +47,7 @@ class SnarkTest < ActiveSupport::TestCase
       storage = s.manual_metadata.storage
       url = URI.parse(storage.url s.manual_key)
       url.scheme = 'http'
+      url.port = 4000
       response = Net::HTTP.get_response url
       assert_equal 'text/plain', response['Content-Type']
     end

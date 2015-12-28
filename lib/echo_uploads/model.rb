@@ -10,8 +10,8 @@ module EchoUploads
         class_attribute :echo_uploads_config
         
         include ::EchoUploads::Validation
-        include ::EchoUploads::PermFileSaving
-        include ::EchoUploads::TempFileSaving
+        include ::EchoUploads::PrmFileWriting
+        include ::EchoUploads::TmpFileWriting
         
         extend ClassMethods
       end
@@ -67,15 +67,19 @@ module EchoUploads
   
     module ClassMethods      
       # Options:
+      #
       # - +key+: A Proc that takes an ActionDispatch::UploadedFile and returns a key
       #   uniquely identifying the file. If this option is not specified, the key is
       #   computed as the SHA-512 hash of the file contents. A digest of the file's
       #   contents should always be at least a part of the key.
+      #
       # - +expires+: Length of time temporary files will be persisted. Defaults to
       #   +1.day+.
+      #
       # - +storage+: A class that persists uploaded files to disk, to the cloud, or to
       #   wherever else you want. Defaults to +Rails.configuration.echo_uploads.storage+,
       #   which in turn is +EchoUploads::FilesystemStore+ by default.
+      #
       # - +map+: A Proc that accepts an ActionDispatch::Htttp::UploadedFile and an
       #   instance of +EchoUploads::Mapper+. It should transform the file data (e.g.
       #   scaling an image). It should then write the transformed data to one of more
@@ -83,6 +87,7 @@ module EchoUploads
       #   +Mapper+. See readme.md for an example. The +:map+ option can also accept a
       #   symbol naming an an instance method that works the same way as the previously
       #   described Proc.
+      #
       # - +multiple+: You use the +:map+ option to write multiple versions of the file.
       #   E.g. multiple thumbnail sizes. If you do so, you must pass +multiple: true+.
       #   This will make the association with +EchoUploads::File+ a +has_many+ instead of
@@ -90,11 +95,23 @@ module EchoUploads
       #   E.g.: Your model is called +Widget+, and the upload file attribute is called
       #   +photo+. You pass +:map+ with a method that writes three files. If you call
       #   +Widget#photo_path+, it will return the path to the first of the three files.
+      #
+      # - +write_tmp_file+: Normally, on a failed attempt to save the record, Echo Uploads
+      #   writes a temp file. That way, the user can fix the validation errors without
+      #   re-uploading the file. This option determines when the temp file is written. The
+      #   default is +save+, meaning the temp file is written on a failed call to
+      #   +ActiveRecord::Base#save+, +#update+, +#create+, etc. Set to +false+ to turn off
+      #   temp file saving. You can then save temp files manually by calling Set to +:validation+ and the temp file will be written on
+      #   validation failure. (Warning: Although ActiveRecord implicitly validates before
+      #   saving, it does so during a transaction. So setting this option to +:validation+
+      #   will prevent temp files being written during calls to +#save+ and similar
+      #   methods.)
       def echo_upload(attr, options = {})
         options = {
           expires: 1.day,
           storage: Rails.configuration.echo_uploads.storage,
-          key: ::EchoUploads::File.default_key_proc
+          key: ::EchoUploads::File.default_key_proc,
+          write_tmp_file: :save
         }.merge(options)
         
         # Init the config object. We can't use [] syntax to set the hash key because
@@ -208,6 +225,10 @@ module EchoUploads
           echo_uploads_map_metadata(attr, options, &:size)
         end
         
+        define_method("maybe_write_tmp_#{attr}") do
+          echo_uploads_maybe_write_tmp_file(attr, options) { false }
+        end
+        
         # Define the association with the metadata model.
         if options[:multiple]
           has_many("#{attr}_metadatas".to_sym,
@@ -234,9 +255,9 @@ module EchoUploads
         # Define the temp attribute for the metadata model.
         attr_accessor "#{attr}_tmp_metadata"
         
-        configure_temp_file_saving attr, options
+        echo_uploads_configure_tmp_file_writing attr, options
         
-        configure_perm_file_saving attr, options
+        echo_uploads_configure_prm_file_writing attr, options
       end
     end
   end

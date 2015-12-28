@@ -1,11 +1,11 @@
 module EchoUploads
-  module PermFileSaving
+  module PrmFileWriting
     def self.included(base)
       base.class_eval { extend ClassMethods }
     end
     
     module ClassMethods
-      def configure_perm_file_saving(attr, options)
+      def echo_uploads_configure_prm_file_writing(attr, options)
         # Save the file and the metadata after this model saves.
         after_save do |model|
           @echo_uploads_perm_files_saved ||= {}

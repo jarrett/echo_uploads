@@ -24,8 +24,8 @@ gem 'fakes3'
 # gem 'echo_uploads'
 
 group :test do
-  gem 'turn'
   gem 'minitest-rails'
+  gem 'minitest-reporters'
   gem 'capybara'
   gem 'database_cleaner'
   gem 'launchy'

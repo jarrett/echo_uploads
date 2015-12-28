@@ -3,9 +3,11 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'minitest/rails'
 require 'capybara/rails'
-require 'turn/autorun'
 require 'fileutils'
 require 'example_files'
+
+require 'minitest/reporters'
+Minitest::Reporters.use! Minitest::Reporters::DefaultReporter.new, ENV, Minitest.backtrace_filter
 
 class ActiveSupport::TestCase
   include ExampleFiles
@@ -50,6 +52,14 @@ class ActiveSupport::TestCase
       bucket.create
     end
     assert bucket.exists?, 'Expected S3 bucket "example" to exist'
+  end
+  
+  def with_s3
+    begin
+      yield
+    rescue Errno::ECONNREFUSED
+      raise 'fakes3 is not running'
+    end
   end
 end
 
