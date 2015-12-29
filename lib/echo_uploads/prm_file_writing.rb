@@ -1,21 +1,19 @@
 module EchoUploads
   module PrmFileWriting
-    def self.included(base)
-      base.class_eval { extend ClassMethods }
-    end
+    extend ActiveSupport::Concern
     
     module ClassMethods
       def echo_uploads_configure_prm_file_writing(attr, options)
         # Save the file and the metadata after this model saves.
         after_save do |model|
-          @echo_uploads_perm_files_saved ||= {}
-          if (file = send(attr)).present? and @echo_uploads_perm_files_saved[attr.to_sym] != file
+          @echo_uploads_prm_files_saved ||= {}
+          if (file = send(attr)).present? and @echo_uploads_prm_files_saved[attr.to_sym] != file
             # A file is being uploaded during this request cycle. Further, we have not
             # already done the permanent file saving during this request cycle. (It's
             # not uncommon for a model to be saved twice in one request. If we ran this
             # code twice, we'd have duplicate effort at best and exceptions at worst.)
             
-            @echo_uploads_perm_files_saved[attr.to_sym] = file
+            @echo_uploads_prm_files_saved[attr.to_sym] = file
             
             if options[:multiple]
               metas = send("#{attr}_metadatas")

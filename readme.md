@@ -1,5 +1,5 @@
 Echo Uploads is uploaded files for Rails, done right. It gracefully handles invalid form
-submissions, so users don't have to resubmit the file. It supports transforming the file
+submissions so users don't have to resubmit the file. It supports transforming the file
 before saving, e.g. scaling an image. It's compatible with any storage mechanism,
 including the local filesystem and the cloud. 
 
@@ -424,6 +424,71 @@ call to `echo_upload` defines a new association, where the name is
 `your_attribute_name_metadata`. For example, `echo_upload :photo` would define the
 association `photo_metadata`, `echo_upload :zip_file` would define `zip_file_metadata`,
 etc.
+
+# Nested attributes
+
+Suppose you call `accepts_nested_attributes_for`, and the child model has any Echo Uploads
+attributes. For example:
+    
+    # app/models/user.rb
+    class User < ActiveRecord::Base
+      has_many :avatars
+      accepts_nested_attributes_for :avatars
+      validates :email, presence: true
+    end
+    
+    # app/models/avatar.rb
+    class Avatar < ActiveRecord::Base
+      include EchoUploads::Model
+      
+      belongs_to :user
+      echo_upload :image
+    end
+    
+    # app/controllers/users_controller.rb
+    class UsersController < ApplicationController
+      def create  
+        @user = User.new user_params
+        if @user.save
+          redirect_to '/'
+        else
+          render action: :new
+        end
+      end
+      
+      # ...
+      
+      private
+      
+      def user_params
+        params.require(:user).permit(:email, avatars_params: [:image, :echo_uploads_data])
+      end
+    end
+
+This mostly works. But if validation fails during the `#create` action, the avatars'
+uploaded images won't be persisted. (That's bad. We'd like to re-display the form with the
+uploaded images pre-populated, saving the user from having to upload them again.) The
+uploaded avatar images don't persist because that would normally occur during
+`Avatar#save`. But when the `User` validation fails, ActiveRecord doesn't call `#save` on
+the nested records.
+
+To work around this limitation of ActiveRecord, we need to add a callback to the parent
+model:
+
+    # app/models/user.rb
+    class User < ActiveRecord::Base
+      # Provides the after_failed_save callback. Implicitly includes EchoUploads::Model.
+      include EchoUploads::Callbacks
+      
+      has_many :avatars
+      accepts_nested_attributes_for :avatars
+      validates :email, presence: true
+      
+      after_failed_save do
+        # Iterate over the nested records, writing a temporary file where possible.
+        avatars.each(&:maybe_write_tmp_image)
+      end
+    end
 
 # How it Works
 

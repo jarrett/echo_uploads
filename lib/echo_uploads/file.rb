@@ -21,10 +21,6 @@ module EchoUploads
       self.mime_type = type ? type.content_type : 'application/octet-stream'
     end
     
-    def compute_key!(file, options)
-      self.key = options[:key].call file
-    end
-    
     # Returns a proc that takes as its only argument an ActionDispatch::UploadedFile
     # and returns a key string.
     def self.default_key_proc
@@ -68,7 +64,7 @@ module EchoUploads
       end
       
       # Configure and save the metadata object.
-      compute_key! file, options
+      self.key = options[:key].call file # Normall, this is .default_key_proc.
       self.owner_attr = attr
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
@@ -92,7 +88,7 @@ module EchoUploads
       
       # If we mapped the files, they were temporarily written to tmp/echo_uploads.
       # Delete them.
-      if file.is_a?(::EchoUploads::MappedFile)
+      if file.is_a?(::EchoUploads::MappedFile) and ::File.exists?(file.path)
         ::File.delete file.path
       end
     

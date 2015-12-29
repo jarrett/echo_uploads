@@ -5,16 +5,14 @@ require 'securerandom'
 
 module EchoUploads    
   module Model
-    def self.included(base)
-      base.class_eval do
-        class_attribute :echo_uploads_config
-        
-        include ::EchoUploads::Validation
-        include ::EchoUploads::PrmFileWriting
-        include ::EchoUploads::TmpFileWriting
-        
-        extend ClassMethods
-      end
+    extend ActiveSupport::Concern
+    
+    included do
+      class_attribute :echo_uploads_config
+      
+      include ::EchoUploads::Validation
+      include ::EchoUploads::PrmFileWriting
+      include ::EchoUploads::TmpFileWriting
     end
     
     def echo_uploads_data
@@ -99,19 +97,19 @@ module EchoUploads
       # - +write_tmp_file+: Normally, on a failed attempt to save the record, Echo Uploads
       #   writes a temp file. That way, the user can fix the validation errors without
       #   re-uploading the file. This option determines when the temp file is written. The
-      #   default is +save+, meaning the temp file is written on a failed call to
-      #   +ActiveRecord::Base#save+, +#update+, +#create+, etc. Set to +false+ to turn off
-      #   temp file saving. You can then save temp files manually by calling Set to +:validation+ and the temp file will be written on
-      #   validation failure. (Warning: Although ActiveRecord implicitly validates before
-      #   saving, it does so during a transaction. So setting this option to +:validation+
-      #   will prevent temp files being written during calls to +#save+ and similar
-      #   methods.)
+      #   default is +:after_rollback+, meaning the temp file is written on a failed
+      #   attempt to save the record. Set to +false+ to turn off temp file saving. You can
+      #   then save temp files manually by calling Set to +:after_validation+ and the temp
+      #   file will be written on validation failure. (Warning: Although ActiveRecord
+      #   implicitly validates before saving, it does so during a transaction. So setting
+      #   this option to +:after_validation+ will prevent temp files being written during
+      #   calls to +#save+ and similar methods.)
       def echo_upload(attr, options = {})
         options = {
           expires: 1.day,
           storage: Rails.configuration.echo_uploads.storage,
           key: ::EchoUploads::File.default_key_proc,
-          write_tmp_file: :save
+          write_tmp_file: :after_rollback
         }.merge(options)
         
         # Init the config object. We can't use [] syntax to set the hash key because
@@ -226,7 +224,7 @@ module EchoUploads
         end
         
         define_method("maybe_write_tmp_#{attr}") do
-          echo_uploads_maybe_write_tmp_file(attr, options) { false }
+          echo_uploads_maybe_write_tmp_file(attr, options)
         end
         
         # Define the association with the metadata model.
