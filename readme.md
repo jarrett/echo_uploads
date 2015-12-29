@@ -373,7 +373,7 @@ just for Echo Uploads, you can do this:
       access_key_id: '...', secret_access_key: '...', region: 'us-west-2'
     }
 
-# Model Methods Reference
+## Model Methods Reference
 
 Echo Uploads adds some methods to your model. Let's assume you called:
 
@@ -392,7 +392,7 @@ Then, your model would have the following methods:
   * `has_prm_thumbnail?`: Whether a permanent file exists.
   * `has_tmp_thumbnail?`: Whether a temporary file exists.
 
-# Eager-loading with `#includes`
+## Eager-loading with `#includes`
 
 Each uploaded file has exactly one corresponding record in the metadata table. (See
 "Metadata Table" below for more info.) You may need to eager-load from that table. For
@@ -425,7 +425,7 @@ call to `echo_upload` defines a new association, where the name is
 association `photo_metadata`, `echo_upload :zip_file` would define `zip_file_metadata`,
 etc.
 
-# Nested attributes
+## Nested attributes
 
 Suppose you call `accepts_nested_attributes_for`, and the child model has any Echo Uploads
 attributes. For example:
