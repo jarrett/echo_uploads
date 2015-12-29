@@ -7,7 +7,12 @@ require 'fileutils'
 require 'example_files'
 
 require 'minitest/reporters'
-Minitest::Reporters.use! Minitest::Reporters::DefaultReporter.new, ENV, Minitest.backtrace_filter
+Minitest::Reporters.use!(
+  Minitest::Reporters::DefaultReporter.new,
+  ENV,
+  # Unlike in a normal Rails app, we want full backtraces into gems.
+  Minitest::ExtensibleBacktraceFilter.default_filter  
+)
 
 class ActiveSupport::TestCase
   include ExampleFiles

@@ -35,7 +35,7 @@ class WidgetTest < ActiveSupport::TestCase
     Widget.create! name: 'Lorem Ipsum', thumbnail: example_image
   end
   
-  test 'temp file persisted if record (but not the file itself) is invalid' do
+  test 'temp file persisted if record but not the file itself is invalid' do
     assert_equal 0, ::EchoUploads::File.count
     wid = Widget.create thumbnail: example_image
     assert_equal 1, ::EchoUploads::File.count
@@ -51,6 +51,26 @@ class WidgetTest < ActiveSupport::TestCase
       assert_equal 0, ::EchoUploads::File.count
       assert_not_remember_meta wid
     end
+  end
+  
+  # Tests bug fix: Temp files saved during failed call to update_attributes were lost
+  # during ActiveRecord transaction rollback.
+  test 'temp file persisted on update_attributes' do
+    # Save a valid record.
+    assert_equal 0, ::EchoUploads::File.count
+    wid = Widget.create! name: 'Lorem ipsum', thumbnail: example_image(1)
+    assert wid.persisted?
+    assert_equal 1, ::EchoUploads::File.count
+    meta1 = ::EchoUploads::File.last
+    assert_meta meta1, temporary: false, widget_num: 1
+    
+    # Try to update_attributes with name blank and a new thumbnail.
+    Rails.logger.info 'About to update attributes'
+    refute wid.update_attributes(name: '', thumbnail: example_image(2))
+    Rails.logger.info 'Done updating attributes'
+    assert_equal 2, ::EchoUploads::File.count, 'Maybe temp file was rolled back in transaction'
+    meta2 = ::EchoUploads::File.last
+    assert_meta meta2, temporary: true, widget_num: 2
   end
   
   test 'temp files pruned when new file is persisted' do

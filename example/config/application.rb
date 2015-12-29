@@ -37,5 +37,7 @@ module Example
       force_path_style: true,
       region: 'IGNORED'
     )
+    
+    config.active_record.raise_in_transactional_callbacks = true
   end
 end

@@ -21,7 +21,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     assert_successful_upload
   end
   
-  test 'upload without name, resubmit without name again, resubmit with name' do
+  test 'upload without name resubmit without name again resubmit with name' do
     # Invalid upload.
     visit '/'
     click_link 'New widget'
@@ -42,7 +42,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     assert_successful_upload
   end
   
-  test 'upload without widget, resubmit with widget' do
+  test 'upload without widget resubmit with widget' do
     # Invalid upload.
     visit '/'
     click_link 'New widget'
@@ -56,7 +56,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     assert_successful_upload
   end
   
-  test 'upload oversized widget, resubmit with valid widget' do
+  test 'upload oversized widget resubmit with valid widget' do
     # Invalid upload.
     with_big_image_path do |big_image_path|
       visit '/'
@@ -87,7 +87,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     assert_successful_upload 2
   end
   
-  test 'try to upload new version with name blank, resubmit successfully' do
+  test 'try to upload new version with name blank resubmit successfully' do
     # Valid upload.
     visit '/widgets/new'
     fill_in 'widget_name', with: 'Flower'
@@ -109,7 +109,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     assert_successful_upload 2
   end
   
-  test 'try to upload oversized new version, resubmit successfully' do
+  test 'try to upload oversized new version resubmit successfully' do
     # Valid upload.
     visit '/widgets/new'
     fill_in 'widget_name', with: 'Flower'
@@ -132,7 +132,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     assert_successful_upload 2
   end
   
-  test 'validation error, temp file expires, resubmit' do
+  test 'validation error temp file expires resubmit' do
     # TODO: Submit with an attached file and no name. Delete the temp EchoUploads::File
     # to simulate expiration. Resubmit form with valid data. Ensure the failure to find
     # the temp file is handled gracefully.
