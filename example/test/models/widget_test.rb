@@ -212,8 +212,13 @@ class WidgetTest < ActiveSupport::TestCase
   end
   
   test 'tracks dirtiness of file attributes' do
-    skip
-    # http://api.rubyonrails.org/classes/ActiveModel/Dirty.html
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1), photo: example_image(2)
+    wid.reload
+    wid.thumbnail = example_image(2)
+    assert wid.attribute_changed?(:thumbnail)
+    wid.reload
+    wid.attributes = {thumbnail: example_image(2)}
+    assert wid.attribute_changed?(:thumbnail)
   end
   
   test 'supports read_manual' do

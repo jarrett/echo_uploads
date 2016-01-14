@@ -135,6 +135,12 @@ module EchoUploads
             # variable.
             send "mapped_#{attr}=", mapper.outputs
           end
+          
+          if attr
+            # Mark as dirty.
+            attribute_will_change! attr
+          end
+          
           instance_variable_set "@#{attr}", file
         end
         
