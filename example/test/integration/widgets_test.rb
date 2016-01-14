@@ -7,7 +7,7 @@ class WidgetsTest < ActionDispatch::IntegrationTest
     img_src = URI.parse(page.find('ul#widgets > li > img')['src']).path
     visit img_src
     headers = page.response_headers
-    assert_equal %Q(inline; filename="test_image_#{widget_num}.png"), headers['Content-Disposition']
+    assert_equal %Q(inline; filename="example_image_#{widget_num}.png"), headers['Content-Disposition']
     assert_equal 'image/png', headers['Content-Type']
     assert_equal({1 => '1421', 2 => '1290'}[widget_num], headers['Content-Length'])
   end

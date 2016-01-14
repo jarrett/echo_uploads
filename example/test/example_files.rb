@@ -8,7 +8,7 @@ module ExampleFiles
   end
   
   def example_image_path(num = 1)
-    File.join Rails.root, "test/files/test_image_#{num}.png"
+    File.join Rails.root, "test/files/example_image_#{num}.png"
   end
   
   def example_textfile(num = 1)
@@ -16,7 +16,7 @@ module ExampleFiles
   end
   
   def example_textfile_path(num = 1)
-    File.join Rails.root, "test/files/test_textfile_#{num}.txt"
+    File.join Rails.root, "test/files/example_textfile_#{num}.txt"
   end
   
   def with_big_image
@@ -26,7 +26,7 @@ module ExampleFiles
   end
   
   def with_big_image_path
-    big_image_path = File.join(Rails.root, 'test/files/big_test_image.png')
+    big_image_path = File.join(Rails.root, 'test/files/big_example_image.png')
     begin
       File.open(big_image_path, 'wb') do |f|
         data = File.read example_image_path

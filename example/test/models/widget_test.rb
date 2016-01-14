@@ -4,7 +4,7 @@ class WidgetTest < ActiveSupport::TestCase
   def assert_meta(meta, options = {})
     options.reverse_merge! temporary: false, widget_num: 1
     assert_equal meta.key, example_image_digest(options[:widget_num])
-    assert_equal "test_image_#{options[:widget_num]}", meta.original_basename
+    assert_equal "example_image_#{options[:widget_num]}", meta.original_basename
     assert_equal '.png', meta.original_extension
     assert_equal 'image/png', meta.mime_type
     assert_equal options[:temporary], meta.temporary
@@ -160,8 +160,8 @@ class WidgetTest < ActiveSupport::TestCase
     assert_nil wid1.manual_metadata
     
     wid2 = Widget.create! name: 'Flower', thumbnail: example_image, manual: example_textfile
-    assert_equal 'test_image_1.png', wid2.thumbnail_original_filename
-    assert_equal 'test_textfile_1.txt', wid2.manual_original_filename
+    assert_equal 'example_image_1.png', wid2.thumbnail_original_filename
+    assert_equal 'example_textfile_1.txt', wid2.manual_original_filename
   end
   
   # Tests :map with :multiple.
