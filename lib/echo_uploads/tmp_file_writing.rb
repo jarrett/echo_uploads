@@ -4,7 +4,7 @@ module EchoUploads
   # This module writes temporary EchoUploads::Files on failed attempts to save the main
   # ActiveRecord model. Because ActiveRecord wraps save attempts in transactions, we can't
   # use after_save callbacks. If we tried, the EchoUploads::Files would be lost upon
-  # rollback. Instead, we have to wrap #save, #create, and #update methods so that the
+  # rollback. Instead, we have to wrap the #save, #create, and #update methods so that the
   # EchoUploads::Files are saved outside the transactions.
   #
   # Here is the ancestor chain for ActiveRecord::Base, including this module,

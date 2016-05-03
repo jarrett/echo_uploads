@@ -22,4 +22,12 @@ class MiddenTest < ActiveSupport::TestCase
     refute mid.save
     refute mid.has_tmp_manual?
   end
+  
+  test 'invokes after_echo_uploads_write_prm callback' do
+    mid = Midden.new squib_id: 1, name: 'Test', thumbnail: example_image
+    refute mid.callback_invoked
+    mid.save!
+    assert mid.has_prm_thumbnail?
+    assert mid.callback_invoked
+  end
 end
