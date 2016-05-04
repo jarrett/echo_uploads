@@ -35,5 +35,7 @@ module EchoUploads
         super meth, *args
       end
     end
+    
+    attr_reader :tempfile
   end
 end

@@ -256,6 +256,12 @@ To edit the contents of an uploaded file:
     f.write some_png_data
     file.close # Commits changes to the file and updates the file's hash.
 
+`#write_thumbnail` returns or yields an `EchoUploads::WritableFile`. This class delegates
+methods such as `#write` to a `Tempfile`. You can also access the underlying `Tempfile`
+like this:
+
+    widget.write_thumbnail.tempfile
+
 Don't just write directly to the uploaded file. Uploaded files are named after their
 hashes. The hash would be invalidated if you did something like this:
     

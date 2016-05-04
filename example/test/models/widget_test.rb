@@ -282,4 +282,11 @@ class WidgetTest < ActiveSupport::TestCase
     assert ::File.exists?(wid.thumbnail_path), "Expected #{wid.thumbnail_path} to exist"
     assert !::File.exists?(old_path), "Expected #{old_path} not to exist"
   end
+  
+  test 'write_thumbnail tempfile accessor' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1)
+    wid.write_thumbnail do |f|
+      assert_kind_of Tempfile, f.tempfile
+    end
+  end
 end
