@@ -2,21 +2,34 @@ require 'test_helper'
 
 class WidgetTest < ActiveSupport::TestCase
   def assert_meta(meta, options = {})
-    options.reverse_merge! temporary: false, widget_num: 1
-    assert_equal meta.key, example_image_digest(options[:widget_num])
-    assert_equal "example_image_#{options[:widget_num]}", meta.original_basename
-    assert_equal '.png', meta.original_extension
-    assert_equal 'image/png', meta.mime_type
+    options.reverse_merge!(
+      temporary: false,
+      widget_num: 1,
+      original_extension: '.png',
+      mime_type: 'image/png',
+    )
+    # Merge a second time for keys that depend on widget_num.
+    options.reverse_merge!(
+      original_basename: "example_image_#{options[:widget_num]}",
+      key: example_image_digest(options[:widget_num])
+    )
+    
+    assert_equal options[:key], meta.key
+    assert_equal options[:original_basename], meta.original_basename
+    assert_equal options[:original_extension], meta.original_extension
+    assert_equal options[:mime_type], meta.mime_type
     assert_equal options[:temporary], meta.temporary
     if options[:temporary]
       assert_in_delta 1.day.from_now.to_i, meta.expires_at.to_i, 5
     else
       assert_nil meta.expires_at
     end
+    
     path = meta.storage.path(meta.key)
     assert ::File.exists? path
+    assert_equal File.size(path), meta.size
     assert_equal(
-      example_image_digest(options[:widget_num]),
+      options[:key],
       Digest::SHA512.hexdigest(File.read(path))
     )
   end
@@ -228,9 +241,45 @@ class WidgetTest < ActiveSupport::TestCase
   end
   
   test 'knows its size' do
-    w = Widget.create! name: 'Lorem Ipsum', thumbnail: example_image
-    assert_equal 1421, w.thumbnail_size
-    w.reload
-    assert_equal 1421, w.thumbnail_size
+    wid = Widget.create! name: 'Lorem Ipsum', thumbnail: example_image
+    assert_equal 1421, wid.thumbnail_size
+    wid.reload
+    assert_equal 1421, wid.thumbnail_size
+  end
+  
+  test 'write_thumbnail with block' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1)
+    assert_meta wid.thumbnail_metadata, widget_num: 1
+    old_path = wid.thumbnail_path
+    assert ::File.exists?(old_path), "Expected #{old_path} to exist"
+    
+    wid.write_thumbnail do |f|
+      f.write File.read(example_image_path(2))
+    end
+    wid.reload
+    
+    assert wid.has_prm_thumbnail?, 'Expected has_prm_thumbnail? to be true'
+    # The original_filename doesn't change.
+    assert_meta wid.thumbnail_metadata, widget_num: 2, original_basename: 'example_image_1'
+    assert ::File.exists?(wid.thumbnail_path), "Expected #{wid.thumbnail_path} to exist"
+    assert !::File.exists?(old_path), "Expected #{old_path} not to exist"
+  end
+  
+  test 'write_thumbnail without block' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1)
+    assert_meta wid.thumbnail_metadata, widget_num: 1
+    old_path = wid.thumbnail_path
+    assert ::File.exists?(old_path), "Expected #{old_path} to exist"
+    
+    f = wid.write_thumbnail
+    f.write File.read(example_image_path(2))
+    f.close
+    wid.reload
+    
+    assert wid.has_prm_thumbnail?, 'Expected has_prm_thumbnail? to be true'
+    # The original_filename doesn't change.
+    assert_meta wid.thumbnail_metadata, widget_num: 2, original_basename: 'example_image_1'
+    assert ::File.exists?(wid.thumbnail_path), "Expected #{wid.thumbnail_path} to exist"
+    assert !::File.exists?(old_path), "Expected #{old_path} not to exist"
   end
 end

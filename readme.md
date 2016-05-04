@@ -242,6 +242,31 @@ example:
     widget.thumbnails[0].path
     widget.thumbnails[0].key
 
+## Overwriting Uploaded Files
+
+To edit the contents of an uploaded file:
+    
+    widget.write_thumbnail do |f|
+      f.write some_png_data
+    end
+    
+    # Or:
+    
+    file = widget.write_thumbnail
+    f.write some_png_data
+    file.close # Commits changes to the file and updates the file's hash.
+
+Don't just write directly to the uploaded file. Uploaded files are named after their
+hashes. The hash would be invalidated if you did something like this:
+    
+    # ---------------#
+    # Don't do this! #
+    # ---------------#
+    widget = Widget.first
+    File.open(widget.thumbnail_path, 'w') do |f|
+      f.write some_png_data
+    end
+
 ## Custom File Stores
 
 Echo Uploads allows you to store your files in any location and in any manner you want.

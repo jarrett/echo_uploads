@@ -2,6 +2,17 @@ module EchoUploads
   module PrmFileWriting
     extend ActiveSupport::Concern
     
+    def echo_uploads_write_prm_file(attr, options)
+      meta = send("#{attr}_metadata")
+      writable_file = EchoUploads::WritableFile.new meta, options
+      if block_given?
+        yield writable_file
+        writable_file.close
+      else
+        writable_file
+      end
+    end
+    
     module ClassMethods
       def echo_uploads_configure_prm_file_writing(attr, options)
         define_model_callbacks :echo_uploads_write_prm

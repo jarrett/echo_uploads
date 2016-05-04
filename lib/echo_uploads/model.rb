@@ -213,7 +213,7 @@ module EchoUploads
         end
         
         # Define the has_tmp_x? method. Returns true if the record "remembers"
-        # a a temporary metadata record. (Typically because validation errors caused
+        # a temporary metadata record. (Typically because validation errors caused
         # the form to be redisplayed.)
         define_method("has_tmp_#{attr}?") do
           send("#{attr}_tmp_metadata").present?
@@ -223,6 +223,10 @@ module EchoUploads
         # FilesystemStore).
         define_method("read_#{attr}") do
           echo_uploads_map_metadata(attr, options, &:read)
+        end
+        
+        define_method("write_#{attr}") do |&block|
+          echo_uploads_write_prm_file(attr, options, &block)
         end
         
         define_method("#{attr}_size") do

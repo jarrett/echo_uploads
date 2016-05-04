@@ -64,7 +64,7 @@ module EchoUploads
       end
       
       # Configure and save the metadata object.
-      self.key = options[:key].call file # Normall, this is .default_key_proc.
+      self.key = options[:key].call file # Normally, this is .default_key_proc.
       self.owner_attr = attr
       self.original_extension = ::File.extname(file.original_filename)
       self.original_basename = ::File.basename(file.original_filename, original_extension)
