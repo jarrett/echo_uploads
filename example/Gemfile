@@ -1,9 +1,5 @@
 source 'https://rubygems.org'
 
-# See config/application.rb where we load Echo Uploads. In a real app, you'd require
-# Echo Uploads in the Gemfile, like this:
-# gem 'echo_uploads'
-
 gem 'rails'
 gem 'sqlite3'
 gem 'sass-rails'
@@ -27,7 +23,9 @@ group :test do
   gem 'minitest-rails'
   gem 'minitest-reporters'
   gem 'capybara'
-  gem 'database_cleaner'
+  # As of May 3, 2017, the current release of DatabaseCleaner was incompatible with the
+  # latest Rails. Next time you read this comment, see if it's been updated.
+  gem 'database_cleaner', git: 'https://github.com/DatabaseCleaner/database_cleaner'
   gem 'launchy'
   gem 'timecop'
 end

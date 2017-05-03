@@ -120,11 +120,17 @@ module EchoUploads
         self.echo_uploads_config = echo_uploads_config.merge attr => {}
         
         # Define reader method for the file attribute.
-        attr_reader attr
-        
-        # Define the writer method for the file attribute.
-        define_method("#{attr}=") do |file|
-          if options[:map]
+        if Rails::VERSION::MAJOR >= 5
+          attribute attr
+        else
+          attr_reader attr
+        end
+                
+        # Define the accessor methods for the mapped version(s) of the file. Returns
+        # an array.
+        define_method("mapped_#{attr}") do
+          unless instance_variable_get("@mapped_#{attr}")
+            file = send attr
             mapper = ::EchoUploads::Mapper.new file
             if options[:map].is_a? Proc
               options[:map].call file, mapper
@@ -133,20 +139,10 @@ module EchoUploads
             end
             # Write an array of ActionDispatch::Http::UploadedFile objects to the instance
             # variable.
-            send "mapped_#{attr}=", mapper.outputs
+            instance_variable_set("@mapped_#{attr}", mapper.outputs)
           end
-          
-          if attr
-            # Mark as dirty.
-            attribute_will_change! attr
-          end
-          
-          instance_variable_set "@#{attr}", file
+          instance_variable_get("@mapped_#{attr}")
         end
-        
-        # Define the accessor methods for the mapped version(s) of the file. Returns
-        # an array.
-        attr_accessor "mapped_#{attr}"
         
         # Define the original filename method.
         define_method("#{attr}_original_filename") do
