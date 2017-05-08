@@ -120,10 +120,17 @@ module EchoUploads
         self.echo_uploads_config = echo_uploads_config.merge attr => {}
         
         # Define reader method for the file attribute.
-        if Rails::VERSION::MAJOR >= 5
+        if Rails::VERSION::MAJOR >= 5 and Rails::VERSION::MINOR >= 1
           attribute attr
         else
           attr_reader attr
+          define_method("#{attr}=") do |file|
+            instance_variable_set "@#{attr}", file
+            if send(attr).present?
+              # Mark as dirty.
+              attribute_will_change! attr
+            end
+          end
         end
                 
         # Define the accessor methods for the mapped version(s) of the file. Returns

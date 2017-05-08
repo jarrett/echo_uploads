@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/DatabaseCleaner/database_cleaner
-  revision: bf9e1fe75cb863c0671ac5eb6de9d7d8e14e0cda
+  revision: afc45492e0495b8317abe5b4605130d8b832d46e
   specs:
     database_cleaner (1.6.0)
 
@@ -51,13 +51,13 @@ GEM
       public_suffix (~> 2.0, >= 2.0.2)
     ansi (1.5.0)
     arel (8.0.0)
-    aws-sdk (2.9.14)
-      aws-sdk-resources (= 2.9.14)
-    aws-sdk-core (2.9.14)
+    aws-sdk (2.9.15)
+      aws-sdk-resources (= 2.9.15)
+    aws-sdk-core (2.9.15)
       aws-sigv4 (~> 1.0)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.9.14)
-      aws-sdk-core (= 2.9.14)
+    aws-sdk-resources (2.9.15)
+      aws-sdk-core (= 2.9.15)
     aws-sigv4 (1.0.0)
     builder (3.2.3)
     capybara (2.14.0)
@@ -103,7 +103,7 @@ GEM
     nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
     public_suffix (2.0.5)
-    rack (2.0.1)
+    rack (2.0.2)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.1.0)
