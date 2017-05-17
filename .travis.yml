@@ -8,5 +8,7 @@ gemfile:
   - example/gemfiles/rails-4.gemfile
   - example/gemfiles/rails-5.0.gemfile
   - example/gemfiles/rails-5.gemfile
-before_script: cd example && bundle exec rake db:migrate RAILS_ENV=test
+before_script:
+  - cd example
+  - bundle exec rake db:migrate RAILS_ENV=test
 script: cd example && bundle exec rake test
