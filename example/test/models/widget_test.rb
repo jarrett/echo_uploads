@@ -181,17 +181,15 @@ class WidgetTest < ActiveSupport::TestCase
   test 'resizes photos' do
     wid = Widget.create! name: 'Flower', thumbnail: example_image(1), photo: example_image(2)
     
-    ImageScience.with_image wid.photos[0].path do |img|
-      assert_equal 200, img.width
-      assert_equal 200, img.height
-    end
+    img = ChunkyPNG::Image.from_file(wid.photos[0].path)
+    assert_equal 200, img.width
+    assert_equal 200, img.height
     assert_equal 'image/png', wid.photos[0].mime_type
     
-    ImageScience.with_image wid.photos[1].path do |img|
-      assert_equal 300, img.width
-      assert_equal 300, img.height
-    end
-    assert_equal 'image/jpeg', wid.photos[1].mime_type
+    img = ChunkyPNG::Image.from_file(wid.photos[1].path)
+    assert_equal 300, img.width
+    assert_equal 300, img.height
+    assert_equal 'image/png', wid.photos[1].mime_type
   end
   
   # Tests :map without :multiple

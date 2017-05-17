@@ -1,31 +1,4 @@
 source 'https://rubygems.org'
 
 gem 'rails'
-gem 'sqlite3'
-gem 'sass-rails'
-gem 'uglifier'
-gem 'mime-types'
-# Image Science requires FreeImage:
-#   brew install freeimage
-#   apt-get install libfreeimage-dev
-#   yum install freeimage-devel
-#   etc...
-gem 'image_science'
-gem 'aws-sdk'
-gem 'fakes3'
-
-# Normally, you'd include the following line in your Gemfile. But for the purposes of
-# developing this gem, we prefer to autoload the source files. See config/application.rb
-# wherein we do that.
-# gem 'echo_uploads'
-
-group :test do
-  gem 'minitest-rails'
-  gem 'minitest-reporters'
-  gem 'capybara'
-  # As of May 3, 2017, the current release of DatabaseCleaner was incompatible with the
-  # latest Rails. Next time you read this comment, see if it's been updated.
-  gem 'database_cleaner', git: 'https://github.com/DatabaseCleaner/database_cleaner'
-  gem 'launchy'
-  gem 'timecop'
-end
+instance_eval File.read(File.join(File.dirname(__FILE__), 'gemfiles/common.gemfile'))
