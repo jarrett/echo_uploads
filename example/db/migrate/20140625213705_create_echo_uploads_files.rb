@@ -1,4 +1,10 @@
-class CreateEchoUploadsFiles < ActiveRecord::Migration[4.2]
+if Rails.version.major < 5
+  parent_class = ActiveRecord::Migration
+else
+  parent_class = ActiveRecord::Migration[4.2]
+end
+
+class CreateEchoUploadsFiles < parent_class
   def change
     create_table :echo_uploads_files do |t|
       t.integer :owner_id
