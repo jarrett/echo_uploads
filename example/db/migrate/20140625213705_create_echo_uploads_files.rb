@@ -1,4 +1,4 @@
-if Rails.version.major < 5
+if Rails::VERSION::MAJOR < 5
   parent_class = ActiveRecord::Migration
 else
   parent_class = ActiveRecord::Migration[4.2]
