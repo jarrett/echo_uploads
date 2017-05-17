@@ -1,4 +1,4 @@
-class CreateMiddens < ActiveRecord::Migration
+class CreateMiddens < ActiveRecord::Migration[4.2]
   def change
     create_table :middens do |t|
       t.integer :squib_id, null: false

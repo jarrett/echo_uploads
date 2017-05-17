@@ -1,4 +1,4 @@
-class CreateEchoUploadsFiles < ActiveRecord::Migration
+class CreateEchoUploadsFiles < ActiveRecord::Migration[4.2]
   def change
     create_table :echo_uploads_files do |t|
       t.integer :owner_id
