@@ -1,13 +1,13 @@
 language: ruby
 rvm:
-  - 2.2
-  - 2.3
+  #- 2.2
+  #- 2.3
   - 2.4
-  - ruby-head
+  #- ruby-head
 gemfile:
-  - example/gemfiles/rails-4.gemfile
+  #- example/gemfiles/rails-4.gemfile
   - example/gemfiles/rails-5.0.gemfile
-  - example/gemfiles/rails-5.gemfile
+  #- example/gemfiles/rails-5.gemfile
 before_script:
   - cd example
   - bundle exec rake db:migrate RAILS_ENV=test
