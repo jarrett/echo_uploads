@@ -1,14 +1,14 @@
 PATH
   remote: .
   specs:
-    echo_uploads (0.0.12)
-      mime-types
+    echo_uploads (0.0.23)
+      mime-types (~> 2)
 
 GEM
   remote: https://rubygems.org/
   specs:
     ansi (1.5.0)
-    mime-types (2.6.1)
+    mime-types (2.99.3)
     minitest (4.7.5)
     turn (0.9.7)
       ansi
@@ -20,3 +20,6 @@ PLATFORMS
 DEPENDENCIES
   echo_uploads!
   turn (~> 0)
+
+BUNDLED WITH
+   1.13.6
