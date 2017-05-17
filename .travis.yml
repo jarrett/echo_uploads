@@ -8,4 +8,4 @@ gemfile:
   - example/gemfiles/rails-4.gemfile
   - example/gemfiles/rails-5.0.gemfile
   - example/gemfiles/rails-5.gemfile
-script: cd example && rails test
+script: cd example && bundle exec rake test
