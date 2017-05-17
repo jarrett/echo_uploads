@@ -11,4 +11,5 @@ gemfile:
 before_script:
   - cd example
   - bundle exec rake db:migrate RAILS_ENV=test
+  - ./fakes3.sh > /dev/null &
 script: bundle exec rake test
