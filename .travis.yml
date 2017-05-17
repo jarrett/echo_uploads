@@ -1,7 +1,7 @@
 language: ruby
 rvm:
-  - 2.2
-  - 2.3
+  - 2.2.6
+  - 2.3.3
   # 2.4 fails with: "key must be 32 bytes"
   # See https://github.com/rails/rails/pull/25192
   #- 2.4 
