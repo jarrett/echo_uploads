@@ -7,19 +7,13 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    ansi (1.5.0)
     mime-types (2.99.3)
-    minitest (4.7.5)
-    turn (0.9.7)
-      ansi
-      minitest (~> 4)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   echo_uploads!
-  turn (~> 0)
 
 BUNDLED WITH
-   1.13.6
+   1.15.0

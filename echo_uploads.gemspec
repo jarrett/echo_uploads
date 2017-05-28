@@ -15,5 +15,4 @@ Gem::Specification.new do |s|
   s.license      = 'MIT'
   
   s.add_runtime_dependency 'mime-types', '~> 2'
-  s.add_development_dependency 'turn', '~> 0'
 end
