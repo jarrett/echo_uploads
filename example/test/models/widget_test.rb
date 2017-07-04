@@ -287,4 +287,20 @@ class WidgetTest < ActiveSupport::TestCase
       assert_kind_of Tempfile, f.tempfile
     end
   end
+  
+  test 'destroy thumbnail' do
+    wid = Widget.create! name: 'Flower', thumbnail: example_image(1)
+    assert wid.has_thumbnail?
+    wid.destroy_thumbnail
+    wid = Widget.find wid.id
+    refute wid.has_thumbnail?
+  end
+  
+  test 'destroy one of the photos' do
+    wid = Widget.create! name: 'Flower', photo: example_image(1), thumbnail: example_image(1)
+    assert_equal 2, wid.photos.count
+    wid.photos[0].destroy
+    wid = Widget.find wid.id
+    assert_equal 1, wid.photos.count
+  end
 end

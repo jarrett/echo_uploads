@@ -552,11 +552,19 @@ You can override the key algorithm like this:
 
     echo_upload :thumbnail, key: ->(file) { some_hash_function file.read }
 
-## Deletion of Unused Files
+## Deleting Files
 
 Files are automatically deleted when they're no longer used. Each time a metadata record
 is destroyed, it checks to see if there are any other metadata records with the same
 key. If there aren't, then the underlying file is deleted.
+
+You can manually delete a file and its associated metadata record:
+
+    widget.destroy_thumbnail
+  
+Or, with the `:multiple` option:
+
+    widget.thumbnails[0].destroy
 
 ## Invalid Form Submissions, Multi-step Forms
 

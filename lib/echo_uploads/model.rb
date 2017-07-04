@@ -57,7 +57,7 @@ module EchoUploads
       end
     end
     
-    # Helper method used internally Echo Uploads.
+    # Helper method used internally by Echo Uploads.
     def echo_uploads_map_metadata(attr, options)
       meta = send("#{attr}_metadata")
       meta ? yield(meta) : nil
@@ -238,6 +238,10 @@ module EchoUploads
         
         define_method("maybe_write_tmp_#{attr}") do
           echo_uploads_maybe_write_tmp_file(attr, options)
+        end
+        
+        define_method("destroy_#{attr}") do
+          echo_uploads_map_metadata(attr, options, &:destroy)
         end
         
         # Define the association with the metadata model.
